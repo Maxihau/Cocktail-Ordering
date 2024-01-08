@@ -18,16 +18,16 @@ class DatabaseManagement:
         con.close()
 
 
+    @staticmethod
+    def databaseBalanceManagement():
 
-    async def databaseBalanceManagement(self):
-        while True:
-            requestQueueNum = self.checkNumQueue(self.requestQueue)
-            orderQueueNum = self.checkNumQueue(self.orderQueue)
-
-            if requestQueueNum == 0 and orderQueueNum > 0:
-                orderNb, user_id, cocktail_name = self.dequeue(self.orderQueue)
-                self.enqueue(self.requestQueue,orderNb, user_id, cocktail_name)
-            await asyncio.sleep(2)  # Check request queue every 5 seconds
+        requestQueueNum = DatabaseManagement.checkNumQueue(DatabaseManagement.requestQueue)
+        orderQueueNum = DatabaseManagement.checkNumQueue(DatabaseManagement.orderQueue)
+        print(f"RequestQ {requestQueueNum} ----- OrderQ {orderQueueNum}")
+        if requestQueueNum == 0 and orderQueueNum > 0:
+            orderNb, user_id, cocktail_name = DatabaseManagement.dequeue(DatabaseManagement.orderQueue)
+            DatabaseManagement.enqueue(DatabaseManagement.requestQueue, orderNb, user_id, cocktail_name)
+            print("Moved an order to request Queue")
 
     # Function to fetch the maximum order number from the cocktail database
     @staticmethod
@@ -60,15 +60,15 @@ class DatabaseManagement:
 
     #orderNb: -1 if it is a new order which needs a new number else its the old order number
     @staticmethod
-    def enqueue(databaseName, orderNb, cocktail_name, user_id):
+    def enqueue(databaseName, orderNb,userID, cocktail_name):
         if orderNb == -1:
             orderNb = DatabaseManagement.get_max_order_number(databaseName) + 1
         con = sqlite3.connect(databaseName)
         cur = con.cursor()
         cur.execute('''CREATE TABLE IF NOT EXISTS cocktail (orderNb INTEGER, userID INTEGER, cocktailName TEXT) ''')
-        cur.execute('''INSERT INTO cocktail (orderNb, userID, cocktailName) VALUES (?, ?, ?) ''', (orderNb,user_id, cocktail_name))
+        cur.execute('''INSERT INTO cocktail (orderNb, userID, cocktailName) VALUES (?, ?, ?) ''', (orderNb, userID, cocktail_name))
         con.commit()
-        print(f"Enqueued:Order Number - {orderNb}, User ID - {user_id} , Cocktail Name - {cocktail_name}")
+        print(f"Enqueued:Order Number - {orderNb}, User ID - {userID} , Cocktail Name - {cocktail_name}")
         cur.close()
         con.close()
 

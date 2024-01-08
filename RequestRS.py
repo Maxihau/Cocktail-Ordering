@@ -1,14 +1,10 @@
 from bottle import get, post, request, Bottle, route
-
-import sqlite3
-
 from DatabaseManagement import DatabaseManagement
 
 app = Bottle()
 
 orderQueue = 'orderQueue.db'
 requestQueue = 'requestQueue.db'
-
 
 @app.route('/', method='POST')
 def order():
@@ -42,7 +38,8 @@ def order():
             data['user_id'] = user_id
             data['cocktail_name'] = cocktail_name
             data_isEmpty = False
-
+            DatabaseManagement.databaseBalanceManagement()
+            print(f"New Order: {cocktail_name} ordered by {user_id} with order number {orderNb}")
     return data
 
 if __name__ == "__main__":

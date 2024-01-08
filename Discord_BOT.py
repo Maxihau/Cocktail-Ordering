@@ -5,8 +5,8 @@ import requests
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 
-#REST_SERVICE_URL = 'http://localhost:8080/'  # Replace with your Bottle REST service URL
-REST_SERVICE_URL = 'https://lehre.bpm.in.tum.de/ports/5321/'
+REST_SERVICE_URL = 'http://localhost:8080/'  # Replace with your Bottle REST service URL
+#REST_SERVICE_URL = 'https://lehre.bpm.in.tum.de/ports/5321/'
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')

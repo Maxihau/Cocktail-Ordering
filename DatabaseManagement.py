@@ -4,7 +4,6 @@ class DatabaseManagement:
     orderQueue = 'orderQueue.db'
     requestQueue = 'requestQueue.db'
 
-    #TODO Reihenfolge in der Datenbank ist falsch. Brauche eine eigene Nummerierung. Order number einführen
 
 
     # For debugging
@@ -25,9 +24,9 @@ class DatabaseManagement:
             requestQueueNum = self.checkNumQueue(self.requestQueue)
             orderQueueNum = self.checkNumQueue(self.orderQueue)
 
-            if requestQueueNum == 0 & orderQueueNum > 0:
-                cocktail_name, user_id = self.dequeue(self.orderQueue)
-                self.enqueue(self.requestQueue, cocktail_name, user_id)
+            if requestQueueNum == 0 and orderQueueNum > 0:
+                orderNb, user_id, cocktail_name = self.dequeue(self.orderQueue)
+                self.enqueue(self.requestQueue,orderNb, user_id, cocktail_name)
             await asyncio.sleep(2)  # Check request queue every 5 seconds
 
     # Function to fetch the maximum order number from the cocktail database
@@ -59,27 +58,28 @@ class DatabaseManagement:
             con.close()
             return 0
 
+    #orderNb: -1 if it is a new order which needs a new number else its the old order number
     @staticmethod
-    def enqueue(databaseName, cocktail_name, user_id):
-        orderNb = DatabaseManagement.get_max_order_number(databaseName) + 1
+    def enqueue(databaseName, orderNb, cocktail_name, user_id):
+        if orderNb == -1:
+            orderNb = DatabaseManagement.get_max_order_number(databaseName) + 1
         con = sqlite3.connect(databaseName)
         cur = con.cursor()
         cur.execute('''CREATE TABLE IF NOT EXISTS cocktail (orderNb INTEGER, userID INTEGER, cocktailName TEXT) ''')
-        cur.execute('''INSERT INTO cocktail (orderNb, userID, cocktailName) VALUES (?, ?, ?) ''', (orderNb, cocktail_name, user_id))
+        cur.execute('''INSERT INTO cocktail (orderNb, userID, cocktailName) VALUES (?, ?, ?) ''', (orderNb,user_id, cocktail_name))
         con.commit()
         print(f"Enqueued:Order Number - {orderNb}, User ID - {user_id} , Cocktail Name - {cocktail_name}")
         cur.close()
         con.close()
 
-    #TODo check if item array is right starting from 0 or 1 (depending on the data structure)
     @staticmethod
     def dequeue(databaseName):
         con = sqlite3.connect(databaseName)
         cur = con.cursor()
-        cur.execute('''SELECT orderNb, userID, cocktailName FROM cocktail ORDER BY orderNb DESC LIMIT 1 ''')
+        cur.execute('''SELECT orderNb, userID, cocktailName FROM cocktail ORDER BY orderNb ASC LIMIT 1 ''')
         item = cur.fetchone()
         if item:
-            cur.execute('''DELETE FROM cocktail WHERE orderNb=?''', (item[1]))
+            cur.execute('''DELETE FROM cocktail WHERE orderNb=?''', (item[0],))
             con.commit()
             print(f"Dequeued: Order Number - {item[0]} , User ID - {item[1]}, Cocktail Name - {item[2]} ")
             cur.close()

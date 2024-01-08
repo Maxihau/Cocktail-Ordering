@@ -16,9 +16,9 @@ def addOrdering(cocktail_name, user_id):
     numQueueRequest = DatabaseManagement.checkNumQueue(requestQueue)
     numQueueOrder = DatabaseManagement.checkNumQueue(orderQueue)
     if numQueueRequest == 0 and numQueueOrder >= 0:
-        DatabaseManagement.enqueue(requestQueue, cocktail_name, user_id)
+        DatabaseManagement.enqueue(requestQueue, -1, cocktail_name, user_id)
     elif numQueueRequest == 1 and numQueueOrder >= 0:
-        DatabaseManagement.enqueue(orderQueue, cocktail_name, user_id)
+        DatabaseManagement.enqueue(orderQueue, -1, cocktail_name, user_id)
     else:
         raise NumberTooBigError()
 

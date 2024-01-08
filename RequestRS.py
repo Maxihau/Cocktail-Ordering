@@ -2,7 +2,10 @@ from bottle import get, post, request, Bottle
 
 import sqlite3
 
+from DatabaseManagement import DatabaseManagement
+
 app = Bottle()
+
 orderQueue = 'orderQueue.db'
 requestQueue = 'requestQueue.db'
 
@@ -25,12 +28,20 @@ def order():
     cpee_callback_url = request.headers.get('Cpee-Callback')
 
     data = {
-        'cocktail': 'Negroni'
+        'cocktail_name': '',
+        'user_id': ''
     }
+    data_isEmpty = any(value == '' for value in data.values())
 
-    # Simulate sending back the data (for demonstration)
+    while data_isEmpty:
+        cocktail_name, user_id = DatabaseManagement.dequeue(requestQueue)
+        if cocktail_name is not None and user_id is not None:
+            data['cocktail_name'] = cocktail_name
+            data['user_id'] = user_id
+            data_isEmpty = False
+
     return data
 
 if __name__ == "__main__":
     #app.run(host="::", port=5123)  # Runs the application on port 5000
-    app.run(host='localhost', port=8080, debug=True)
+    app.run(host='localhost', port=8081, debug=True)

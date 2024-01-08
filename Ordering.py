@@ -2,13 +2,15 @@ from bottle import get, post, request, Bottle, abort
 
 import sqlite3
 
+from NumberTooBigError import NumberTooBigError
+
 app = Bottle()
 orderQueue = 'orderQueue.db'
 requestQueue = 'requestQueue.db'
 
-
-def checkDatabase():
-    con = sqlite3.connect('orderQueue.db')
+#For debugging
+def checkDatabase(databaseName):
+    con = sqlite3.connect(databaseName)
     cur = con.cursor()
     member_data = cur.execute("SELECT * FROM cocktail ORDER BY userID")
     for row in member_data:
@@ -22,13 +24,11 @@ def checkNumQueue(databaseName):
     cur.execute("SELECT COUNT(*) AS entry_count FROM cocktail")
     result = cur.fetchone()
     if result[0] > 0:
-        #Dothis
         print(result[0])
         cur.close()
         con.close()
         return result[0]
     else:
-        #dothis
         print(result[0])
         cur.close()
         con.close()
@@ -63,6 +63,16 @@ def dequeue(databaseName):
         con.close()
         return None, None
 
+# Add the order to the right queue (or database)
+def addOrdering(cocktail_name, user_id):
+    numQueueRequest = checkNumQueue(requestQueue)
+    numQueueOrder = checkNumQueue(orderQueue)
+    if numQueueRequest == 0 & numQueueOrder >= 0:
+        enqueue(requestQueue, cocktail_name, user_id)
+    elif numQueueRequest == 1 & numQueueOrder >= 0:
+        enqueue(orderQueue, cocktail_name, user_id)
+    else:
+        raise NumberTooBigError()
 
 @app.route('/', method='POST')
 def order_cocktail():
@@ -73,18 +83,25 @@ def order_cocktail():
         user_id = data['userID']
         print(cocktail_name)
         print(user_id)
-        # Add the order to the queue (or your database)
-        enqueue(orderQueue,cocktail_name, user_id)
 
-        # For demonstration, you can print the received order to the console
+        try:
+            addOrdering(cocktail_name,user_id)
+        except NumberTooBigError as e:
+            print(e)
+            abort(500, "There was an internal error.")
+        except Exception as e:
+            print(e)
+            abort(500, "Unknown error. Check server console")
+        # Print the cocktail and the customer's name
         print(f"New Order: {cocktail_name} ordered by {user_id}")
         return ''
 
     else:
-        abort(422, "Wrong data/ data format")
+        abort(422, "Wrong data (format)")
 
 
 if __name__ == "__main__":
+
     #enqueue(orderQueue,"negroni",21312)
     #checkQueue(orderQueue)
     #checkDatabase()

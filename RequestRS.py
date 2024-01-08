@@ -1,4 +1,4 @@
-from bottle import get, post, request, Bottle
+from bottle import get, post, request, Bottle, route
 
 import sqlite3
 
@@ -9,7 +9,8 @@ app = Bottle()
 orderQueue = 'orderQueue.db'
 requestQueue = 'requestQueue.db'
 
-@post('/')
+
+@app.route('/', method='POST')
 def order():
     content_type = request.headers.get('Content-Type')
     print("Received POST request with Content-Type:", content_type)
@@ -28,16 +29,18 @@ def order():
     cpee_callback_url = request.headers.get('Cpee-Callback')
 
     data = {
-        'cocktail_name': '',
-        'user_id': ''
+        'orderNb': '',
+        'user_id': '',
+        'cocktail_name': ''
     }
     data_isEmpty = any(value == '' for value in data.values())
 
     while data_isEmpty:
-        cocktail_name, user_id = DatabaseManagement.dequeue(requestQueue)
-        if cocktail_name is not None and user_id is not None:
-            data['cocktail_name'] = cocktail_name
+        orderNb, user_id, cocktail_name = DatabaseManagement.dequeue(requestQueue)
+        if cocktail_name is not None and user_id is not None and orderNb is not None:
+            data['orderNb'] = orderNb
             data['user_id'] = user_id
+            data['cocktail_name'] = cocktail_name
             data_isEmpty = False
 
     return data

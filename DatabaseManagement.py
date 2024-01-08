@@ -49,12 +49,12 @@ class DatabaseManagement:
         cur.execute("SELECT COUNT(*) AS entry_count FROM cocktail")
         result = cur.fetchone()
         if result[0] > 0:
-            print(result[0])
+            #print(result[0])
             cur.close()
             con.close()
             return result[0]
         else:
-            print(result[0])
+            #print(result[0])
             cur.close()
             con.close()
             return 0
@@ -89,4 +89,4 @@ class DatabaseManagement:
             print("Queue is empty")
             cur.close()
             con.close()
-            return None, None
+            return None, None, None

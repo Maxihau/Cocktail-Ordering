@@ -1,6 +1,6 @@
 import asyncio
 
-from bottle import get, post, request, Bottle, abort
+from bottle import  request, Bottle, abort
 
 import sqlite3
 
@@ -15,12 +15,13 @@ requestQueue = 'requestQueue.db'
 def addOrdering(cocktail_name, user_id):
     numQueueRequest = DatabaseManagement.checkNumQueue(requestQueue)
     numQueueOrder = DatabaseManagement.checkNumQueue(orderQueue)
-    if numQueueRequest == 0 & numQueueOrder >= 0:
+    if numQueueRequest == 0 and numQueueOrder >= 0:
         DatabaseManagement.enqueue(requestQueue, cocktail_name, user_id)
-    elif numQueueRequest == 1 & numQueueOrder >= 0:
+    elif numQueueRequest == 1 and numQueueOrder >= 0:
         DatabaseManagement.enqueue(orderQueue, cocktail_name, user_id)
     else:
         raise NumberTooBigError()
+
 
 @app.route('/', method='POST')
 def order_cocktail():
@@ -53,7 +54,7 @@ if __name__ == "__main__":
     #checkQueue(orderQueue)
     #checkDatabase()
     #checkQueue(orderQueue)
+    #app.run(host='localhost', port=8080, debug=True)
+    app.run(host="::", port=5321)  # Runs the application on port 5000
     dbManagement = DatabaseManagement()
     asyncio.run(dbManagement.databaseBalanceManagement())
-    app.run(host='localhost', port=8080, debug=True)
-    #app.run(host="::", port=5123)  # Runs the application on port 5000

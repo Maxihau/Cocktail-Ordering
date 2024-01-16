@@ -1,7 +1,6 @@
-import asyncio
 import requests
 
-from bottle import Bottle, request, run
+from bottle import Bottle, request
 
 app = Bottle()
 

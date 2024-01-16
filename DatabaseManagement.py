@@ -1,13 +1,17 @@
+import os
 import sqlite3
 
 
 class DatabaseManagement:
     orderQueue = 'orderQueue.db'
     requestQueue = 'requestQueue.db'
+    folder_path = 'database'
 
     # For debugging
     def checkDatabase(databaseName):
-        con = sqlite3.connect(databaseName)
+        os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
+        db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
+        con = sqlite3.connect(db_path)
         cur = con.cursor()
         cur.execute('''CREATE TABLE IF NOT EXISTS cocktailsOrder (orderNb INTEGER, userID INTEGER, cocktail TEXT) ''')
         member_data = cur.execute("SELECT * FROM cocktailsOrder ORDER BY orderNb")
@@ -31,17 +35,21 @@ class DatabaseManagement:
     # Function to fetch the maximum order number from the cocktail database
     @staticmethod
     def get_max_order_number(databaseName):
-        conn = sqlite3.connect(databaseName)
-        cursor = conn.cursor()
+        os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
+        db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
+        con = sqlite3.connect(db_path)
+        cursor = con.cursor()
         cursor.execute("SELECT MAX(orderNb) FROM cocktailsOrder")
         max_order_number = cursor.fetchone()[0]
         cursor.close()
-        conn.close()
+        con.close()
         return max_order_number if max_order_number is not None else 0  # Return 0 if no entries are present
 
     @staticmethod
     def checkNumQueue(databaseName):
-        con = sqlite3.connect(databaseName)
+        os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
+        db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
+        con = sqlite3.connect(db_path)
         cur = con.cursor()
         cur.execute('''CREATE TABLE IF NOT EXISTS cocktailsOrder (orderNb INTEGER, userID INTEGER, cocktail TEXT) ''')
         cur.execute("SELECT COUNT(*) AS entry_count FROM cocktailsOrder")
@@ -65,7 +73,9 @@ class DatabaseManagement:
         # The order number is only important in relation to each-other in the order queue
         if orderNb == -1:
             orderNb = DatabaseManagement.get_max_order_number(databaseName) + 1
-        con = sqlite3.connect(databaseName)
+        os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
+        db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
+        con = sqlite3.connect(db_path)
         cur = con.cursor()
         cur.execute('''CREATE TABLE IF NOT EXISTS cocktailsOrder (orderNb INTEGER, userID INTEGER, cocktail TEXT) ''')
         cur.execute('''INSERT INTO cocktailsOrder (orderNb, userID, cocktail) VALUES (?, ?, ?) ''',
@@ -77,7 +87,9 @@ class DatabaseManagement:
 
     @staticmethod
     def dequeue(databaseName):
-        con = sqlite3.connect(databaseName)
+        os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
+        db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
+        con = sqlite3.connect(db_path)
         cur = con.cursor()
         cur.execute('''SELECT orderNb, userID, cocktail FROM cocktailsOrder ORDER BY orderNb ASC LIMIT 1 ''')
         item = cur.fetchone()
@@ -93,3 +105,4 @@ class DatabaseManagement:
             cur.close()
             con.close()
             return None, None, None
+

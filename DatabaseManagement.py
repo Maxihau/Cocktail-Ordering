@@ -52,7 +52,7 @@ class DatabaseManagement:
         con = sqlite3.connect(db_path)
         cur = con.cursor()
         cur.execute('''CREATE TABLE IF NOT EXISTS cocktailsOrder (orderNb INTEGER, userID INTEGER, cocktail TEXT) ''')
-        cur.execute("SELECT COUNT(*) AS entry_count FROM cocktailsOrder")
+        cur.execute('''SELECT COUNT(*) AS entry_count FROM cocktailsOrder''')
         result = cur.fetchone()
         if result[0] > 0:
             # print(result[0])

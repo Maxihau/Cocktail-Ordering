@@ -33,7 +33,7 @@ def order_cocktail():
             addOrdering(userID, cocktail_name)
         except NumberTooBigError as e:
             print(e)
-            abort(500, "There was an internal error.")
+            abort(500, "There was an internal error. Please check console")
         except Exception as e:
             print(e)
             abort(500, "Unknown error. Check server console")
@@ -46,7 +46,7 @@ def order_cocktail():
 
 if __name__ == "__main__":
     #app.run(host='localhost', port=8080, debug=True)
-    app.run(host="::", port=5321)  # Runs the application on port 5000
+    app.run(host="::", port=5321)
 
 
     #dbManagement = DatabaseManagement()

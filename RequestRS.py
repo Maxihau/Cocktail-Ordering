@@ -12,12 +12,15 @@ def order():
     print("Received POST request with Content-Type:", content_type)
 
     # Access the form data
-    #form_data = request.form
+    form_data = request.forms
     #print("Received form data:", form_data)
+    form_data_dict = dict(form_data)
 
-    for header, value in request.headers.items():
-        print(f"{header}: {value}")
+    #for header, value in request.headers.items():
+    #    print(f"{header}: {value}")
 
+    print(form_data_dict)
+    
     # Process the form data as needed
     # Example: print each key-value pair
     #for key in form_data:
@@ -43,5 +46,5 @@ def order():
     return data
 
 if __name__ == "__main__":
-    app.run(host="::", port=5123)  # Runs the application on port 5000
+    app.run(host="::", port=5123)
     #app.run(host='localhost', port=8081, debug=True)

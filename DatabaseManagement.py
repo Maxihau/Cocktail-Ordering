@@ -86,7 +86,7 @@ class DatabaseManagement:
             con.close()
             return item[0], item[1], item[2]  # Returning cocktailName and userID
         else:
-            print("Queue is empty")
+            #print("Queue is empty")
             cur.close()
             con.close()
             return None, None, None

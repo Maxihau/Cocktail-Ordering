@@ -5,8 +5,8 @@ import requests
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
 
-REST_SERVICE_URL = 'http://localhost:8080/'  # Replace with your Bottle REST service URL
-#REST_SERVICE_URL = 'https://lehre.bpm.in.tum.de/ports/5321/'
+#REST_SERVICE_URL = 'http://localhost:8080/'  # Replace with your Bottle REST service URL
+REST_SERVICE_URL = 'https://lehre.bpm.in.tum.de/ports/5321/'
 @client.event
 async def on_ready():
     print(f'We have logged in as {client.user}')
@@ -23,7 +23,7 @@ async def on_message(message):
             cocktail_name = content[1]
 
             # Sending a POST request to your Bottle REST service
-            payload = {'cocktailName': cocktail_name, 'userID': client.user.id}
+            payload = {'cocktailName': cocktail_name, 'userID': message.author.id}
             print(payload)
             try:
                 response = requests.post(REST_SERVICE_URL, json=payload)
@@ -36,5 +36,4 @@ async def on_message(message):
                 await message.channel.send("Failed to communicate with the service. Please try again later.")
 
 if __name__ == "__main__":
-    # Run your Discord bot
     client.run("MTE4NDQzMzI3NzUzNzM2NjAzNg.Gf_dwn.RVRN64S767PjzcdnkWjLRSsHHqGfS8MxJ2u7U8")

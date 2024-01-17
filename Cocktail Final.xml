@@ -1,0 +1,193 @@
+<testset xmlns="http://cpee.org/ns/properties/2.0">
+  <executionhandler>ruby</executionhandler>
+  <dataelements>
+    <cocktail_name/>
+    <user_id/>
+    <orderNb/>
+  </dataelements>
+  <endpoints>
+    <getOrder>https://lehre.bpm.in.tum.de/ports/5123/</getOrder>
+    <user>https-post://cpee.org/services/timeout-user.php</user>
+    <auto>https-post://cpee.org/services/timeout-auto.php</auto>
+    <sendMsg>https://lehre.bpm.in.tum.de/ports/5001/</sendMsg>
+    <subprocess>https-post://cpee.org/flow/start/url/</subprocess>
+    <timeout>https://cpee.org/services/timeout.php</timeout>
+    <send>https-post://cpee.org/ing/correlators/message/send/</send>
+    <receive>https-get://cpee.org/ing/correlators/message/receive/</receive>
+  </endpoints>
+  <attributes>
+    <info>Cocktail</info>
+    <modeltype>CPEE</modeltype>
+    <theme>preset</theme>
+    <resources>https://cpee.org/flow/resources/</resources>
+  </attributes>
+  <description>
+    <description xmlns="http://cpee.org/ns/description/1.0">
+      <loop mode="pre_test" condition="true">
+        <_probability>
+          <_probability_min/>
+          <_probability_max/>
+          <_probability_avg/>
+        </_probability>
+        <call id="a1" endpoint="getOrder">
+          <parameters>
+            <label>Is there a new order? (Check waiter queue)</label>
+            <method>:post</method>
+            <arguments/>
+          </parameters>
+          <code>
+            <prepare/>
+            <finalize output="result">data.cocktail_name = result['cocktail']
+data.user_id = result['user_id']
+data.orderNb = result['orderNb']</finalize>
+            <update output="result">data.cocktail = result</update>
+            <rescue output="result"/>
+          </code>
+          <annotations>
+            <_generic/>
+            <_timing>
+              <_timing_weight/>
+              <_timing_avg/>
+              <explanations/>
+            </_timing>
+            <_shifting>
+              <_shifting_type>Duration</_shifting_type>
+            </_shifting>
+            <_context_data_analysis>
+              <probes/>
+              <ips/>
+            </_context_data_analysis>
+            <report>
+              <url/>
+            </report>
+            <_notes>
+              <_notes_general/>
+            </_notes>
+          </annotations>
+          <documentation>
+            <input/>
+            <output/>
+            <implementation>
+              <description/>
+            </implementation>
+            <code>
+              <description/>
+            </code>
+          </documentation>
+        </call>
+        <choose mode="exclusive">
+          <alternative condition="!data.cocktail == 'Bloody Mary'">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+          </alternative>
+          <alternative condition="!data.cocktail == 'Gin Tonic'">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+          </alternative>
+          <alternative condition="!data.cocktail == 'Negroni'">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+          </alternative>
+          <alternative condition="!data.cocktail == 'Old Fashioned'">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+          </alternative>
+          <alternative condition="!data.cocktail == 'Dry Martini'">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+          </alternative>
+          <alternative condition="!data.cocktail == 'Margarita'">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+          </alternative>
+          <alternative condition="!data.cocktail == 'Aperol Spritz'">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+          </alternative>
+          <alternative condition="!data.cocktail == 'Mojito'">
+            <_probability>
+              <_probability_min/>
+              <_probability_max/>
+              <_probability_avg/>
+            </_probability>
+          </alternative>
+          <otherwise/>
+        </choose>
+        <call id="a2" endpoint="sendMsg">
+          <parameters>
+            <label>Sends message, that the cocktail is ready</label>
+            <method>:post</method>
+            <arguments>
+              <user_id>!data.user_id</user_id>
+              <cocktail>!data.cocktail_name</cocktail>
+            </arguments>
+          </parameters>
+          <code>
+            <prepare/>
+            <finalize output="result"/>
+            <update output="result"/>
+            <rescue output="result"/>
+          </code>
+          <annotations>
+            <_generic/>
+            <_timing>
+              <_timing_weight/>
+              <_timing_avg/>
+              <explanations/>
+            </_timing>
+            <_shifting>
+              <_shifting_type>Duration</_shifting_type>
+            </_shifting>
+            <_context_data_analysis>
+              <probes/>
+              <ips/>
+            </_context_data_analysis>
+            <report>
+              <url/>
+            </report>
+            <_notes>
+              <_notes_general/>
+            </_notes>
+          </annotations>
+          <documentation>
+            <input/>
+            <output/>
+            <implementation>
+              <description/>
+            </implementation>
+            <code>
+              <description/>
+            </code>
+          </documentation>
+        </call>
+        <stop id="a3"/>
+      </loop>
+    </description>
+  </description>
+  <transformation>
+    <description type="copy"/>
+    <dataelements type="none"/>
+    <endpoints type="none"/>
+  </transformation>
+</testset>

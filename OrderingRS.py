@@ -56,6 +56,6 @@ def order_cocktail():
 
 if __name__ == "__main__":
     # Local testing
-    app.run(host='localhost', port=8080, debug=True)
+    #app.run(host='localhost', port=8080, debug=True)
 
-    # app.run(host="::", port=5321)
+    app.run(host="::", port=5321)

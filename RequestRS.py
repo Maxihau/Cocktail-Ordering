@@ -41,5 +41,5 @@ def order():
 
 
 if __name__ == "__main__":
-    # app.run(host="::", port=5123)
-    app.run(host='localhost', port=8081, debug=True)
+    app.run(host="::", port=5123)
+    # app.run(host='localhost', port=8081, debug=True)

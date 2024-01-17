@@ -26,8 +26,6 @@ def send_discord_message():
 
         channel_id = createDmChannel(DISCORD_BOT_TOKEN, user_id)
         sendMessage(DISCORD_BOT_TOKEN, channel_id, message)
-
-
     except Exception as e:
         return {'success': False, 'message': f"An error occurred: {e}"}
 

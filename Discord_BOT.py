@@ -6,7 +6,7 @@ client = discord.Client(intents=intents)
 DISCORD_BOT_TOKEN = 'MTE4NDQzMzI3NzUzNzM2NjAzNg.Gf_dwn.RVRN64S767PjzcdnkWjLRSsHHqGfS8MxJ2u7U8'
 
 # For testing locally
-#REST_SERVICE_URL = 'http://localhost:8080/'
+# REST_SERVICE_URL = 'http://localhost:8080/'
 
 REST_SERVICE_URL = 'https://lehre.bpm.in.tum.de/ports/5321/'
 
@@ -21,14 +21,18 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('!order'):
+    if message.content.startswith('!'):
+
         print(message.content)
         # Checks if there has been a cocktail ordered
         content = message.content.split(' ')
 
         if len(content) >= 1:
-            _, cocktail = message.content.split(' ', 1)
-            payload = {'cocktail': cocktail, 'userID': message.author.id}
+            expr, item = message.content.split(' ', 1)
+            expr = expr[1:]
+            timestamp = message.created_at
+            timestamp_str = timestamp.strftime("%Y-%m-%d %H:%M:%S")
+            payload = {'expr': expr, 'item': item, 'userID': message.author.id, 'timestamp': timestamp_str}
             print(f"Payload: {payload}")
             try:
                 response = requests.post(REST_SERVICE_URL, json=payload)
@@ -36,9 +40,9 @@ async def on_message(message):
 
                 # Feedback to the user
                 if response.status_code == 200:
-                    await message.channel.send(f"Your order has been placed: {cocktail}")
+                    await message.channel.send(f"Your {expr} has been placed: {item} at {timestamp_str}")
                 else:
-                    await message.channel.send("Failed to place the order. Please try again.")
+                    await message.channel.send(f"Failed to place the {expr}. Please try again.")
 
             except requests.exceptions.RequestException as e:
                 print(f"Error: {e}")

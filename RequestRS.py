@@ -15,6 +15,15 @@ def order():
     form_data_dict = dict(form_data)
 
     print(form_data_dict)
+    pattern = request.forms.get('pattern')
+
+    # Optionally get 'from', 'to', and 'banned_users' fields
+    form_from = request.forms.get('from')
+    form_to = request.forms.get('to')
+
+    # Convert 'banned_users' string to a list
+    banned_users = request.forms.get('banned_users')
+    banned_users = banned_users.split(',') if banned_users else []
 
     data = {
         'orderNb': '',

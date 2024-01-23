@@ -10,7 +10,7 @@ requestQueue = 'requestQueue.db'
 
 # Used when an HTTP is posted here
 # Adds the order to the right queue (or database)
-def addOrdering(userID, cocktail):
+def add_item(expr, userID, item, timestamp):
     # Check the number of both databases
     numQueueRequest = DatabaseManagement.checkNumQueue(requestQueue)
     numQueueOrder = DatabaseManagement.checkNumQueue(orderQueue)
@@ -18,28 +18,30 @@ def addOrdering(userID, cocktail):
     # Checks if a cocktail is already in the request queue
     # If not, add it to the request queue
     # If yes, then add it to the order queue
-    if numQueueRequest == 0 and numQueueOrder >= 0:
-        DatabaseManagement.enqueue(requestQueue, -1, userID, cocktail)
-    elif numQueueRequest == 1 and numQueueOrder >= 0:
-        DatabaseManagement.enqueue(orderQueue, -1, userID, cocktail)
-    else:
-        # Error, if request queue is not 0/1 or order queue is <0
-        raise NumberTooBigError()
+    try:
+        DatabaseManagement.enqueue(requestQueue, -1, expr, userID, item, timestamp)
+    except Exception as e:
+        print(f"Error while trying to a an item: {e}")
+        raise e
 
 
 # Handles the POST Request
 @app.route('/', method='POST')
-def order_cocktail():
+def expr_item():
     data = request.json
 
-    if 'cocktail' in data and 'userID' in data:
-        cocktail = data['cocktail']
+    if 'expr' in data and 'item' in data and 'userID' in data and 'timestamp' in data:
+        expr = data['expr']
+        item = data['item']
         userID = data['userID']
-        print(cocktail)
+        timestamp = data['timestamp']
+        print(expr)
+        print(item)
         print(userID)
+        print(timestamp)
 
         try:
-            addOrdering(userID, cocktail)
+            add_item(expr, userID, item, timestamp)
         except NumberTooBigError as e:
             print(e)
             abort(500, "There was an internal error with the database. Please check console")
@@ -48,7 +50,7 @@ def order_cocktail():
             abort(500, "Unknown error. Check server console")
 
         # Print the cocktail and the customer's name
-        print(f"New Order: {cocktail} ordered by {userID}")
+        print(f"Expr {expr} with Item: {item} requested by {userID} at time: {timestamp}")
         return ''
     else:
         abort(422, "Wrong data (format)")

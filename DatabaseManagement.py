@@ -13,8 +13,8 @@ class DatabaseManagement:
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
         cur = con.cursor()
-        cur.execute('''CREATE TABLE IF NOT EXISTS cocktailsOrder (orderNb INTEGER, userID INTEGER, cocktail TEXT) ''')
-        member_data = cur.execute("SELECT * FROM cocktailsOrder ORDER BY orderNb")
+        cur.execute('''CREATE TABLE IF NOT EXISTS items (orderNb INTEGER, userID INTEGER, cocktail TEXT) ''')
+        member_data = cur.execute("SELECT * FROM items ORDER BY orderNb")
         for row in member_data:
             print(row)
         cur.close()
@@ -32,14 +32,14 @@ class DatabaseManagement:
             DatabaseManagement.enqueue(DatabaseManagement.requestQueue, orderNb, user_id, cocktail)
             print("Moved an order to request Queue")
 
-    # Function to fetch the maximum order number from the cocktail database
+    # Function to fetch the maximum order number from the current cocktail database
     @staticmethod
     def get_max_order_number(databaseName):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
         cursor = con.cursor()
-        cursor.execute("SELECT MAX(orderNb) FROM cocktailsOrder")
+        cursor.execute("SELECT MAX(orderNb) FROM items")
         max_order_number = cursor.fetchone()[0]
         cursor.close()
         con.close()
@@ -51,8 +51,8 @@ class DatabaseManagement:
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
         cur = con.cursor()
-        cur.execute('''CREATE TABLE IF NOT EXISTS cocktailsOrder (orderNb INTEGER, userID INTEGER, cocktail TEXT) ''')
-        cur.execute('''SELECT COUNT(*) AS entry_count FROM cocktailsOrder''')
+        cur.execute('''CREATE TABLE IF NOT EXISTS items (orderNb INTEGER, userID INTEGER, cocktail TEXT) ''')
+        cur.execute('''SELECT COUNT(*) AS entry_count FROM items''')
         result = cur.fetchone()
         if result[0] > 0:
             # print(result[0])
@@ -77,8 +77,8 @@ class DatabaseManagement:
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
         cur = con.cursor()
-        cur.execute('''CREATE TABLE IF NOT EXISTS cocktailsOrder (orderNb INTEGER, userID INTEGER, cocktail TEXT) ''')
-        cur.execute('''INSERT INTO cocktailsOrder (orderNb, userID, cocktail) VALUES (?, ?, ?) ''',
+        cur.execute('''CREATE TABLE IF NOT EXISTS items (orderNb INTEGER, userID INTEGER, cocktail TEXT) ''')
+        cur.execute('''INSERT INTO items (orderNb, userID, cocktail) VALUES (?, ?, ?) ''',
                     (orderNb, userID, cocktail))
         con.commit()
         print(f"Enqueued:Order Number - {orderNb}, User ID - {userID} , Cocktail - {cocktail}")
@@ -91,10 +91,10 @@ class DatabaseManagement:
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
         cur = con.cursor()
-        cur.execute('''SELECT orderNb, userID, cocktail FROM cocktailsOrder ORDER BY orderNb ASC LIMIT 1 ''')
+        cur.execute('''SELECT orderNb, userID, cocktail FROM items ORDER BY orderNb ASC LIMIT 1 ''')
         item = cur.fetchone()
         if item:
-            cur.execute('''DELETE FROM cocktailsOrder WHERE orderNb=?''', (item[0],))
+            cur.execute('''DELETE FROM items WHERE orderNb=?''', (item[0],))
             con.commit()
             print(f"Dequeued: Order Number - {item[0]} , User ID - {item[1]}, Cocktail - {item[2]} ")
             cur.close()

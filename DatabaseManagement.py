@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import time as mytime
 
 
 class DatabaseManagement:
@@ -35,7 +36,7 @@ class DatabaseManagement:
     # Function to fetch the maximum order number from the current cocktail database
 
     @staticmethod
-    def process_data(databaseName, data, callback_url):
+    def process_data(databaseName, data):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
@@ -53,61 +54,92 @@ class DatabaseManagement:
         '''
 
         # Add conditions for 'from' and 'to' if they exist in the data
-        if 'item' in data:
+        if 'item' in data and data['item'] is not None:
             query += ' AND item = ?'
-        if 'from' in data:
+        if 'from' in data and data['from'] is not None:
             query += ' AND timestamp >= ?'
-        if 'to' in data:
+        if 'to' in data and data['to'] is not None:
             query += ' AND timestamp <= ?'
 
         # Add conditions for 'banned_users' if it exists in the data
-        if 'banned_users' in data and data['banned_users']:
+        if 'banned_users' in data and data['banned_users'] is not None and data['banned_users']:
             query += ' AND userID NOT IN ({})'.format(', '.join(['?' for _ in data['banned_users']]))
 
         # Execute the query with parameters
         params = [data['expr']]
-        if 'item' in data:
+        if 'item' in data and data['item'] is not None:
             params.append((data['item']))
-        if 'from' in data:
+        if 'from' in data and data['from'] is not None:
             params.append(data['from'])
-        if 'to' in data:
+        if 'to' in data and data['to'] is not None:
             params.append(data['to'])
-        if 'banned_users' in data and data['banned_users']:
+        if 'banned_users' in data and data['banned_users'] is not None and data['banned_users']:
             params.extend(data['banned_users'])
 
         cur.execute(query, params)
 
         # Fetch the result
-        #result = cur.fetchone()
-        all_results = cur.fetchall()
-        print(all_results)
-        #print(result)
-        # # Check if a matching entry was found
-        # if result:
-        #     print("Matching entry found.")
-        # else:
-        #     print("No matching entry found.")
+        result = cur.fetchone()
+
+        while not result:
+            cur.execute(query, params)
+            result = cur.fetchone()
+            mytime.sleep(1)
+
+        # all_results = cur.fetchall()
+        # print(all_results)
+        # print(result)
+        # Check if a matching entry was found
+        if result:
+            print("Matching entry found.")
+        else:
+            print("No matching entry found.")
 
         # Close the connection
+        cur.close()
         con.close()
+        if result:
+            print(f"Result found: {result}")
+            DatabaseManagement.dequeue(DatabaseManagement.orderQueue, result[0])
+            DatabaseManagement.enqueue(DatabaseManagement.requestQueue, result[0], result[1], result[2], result[3], result[4])
 
-
-        return None
+    # @staticmethod
+    # def checkBannedUsers(databaseName, banned_users):
+    #
+    #     os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
+    #     db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
+    #     con = sqlite3.connect(db_path)
+    #     cursor = con.cursor()
+    #     query = f"SELECT * FROM items WHERE userID NOT IN ({', '.join(['?' for _ in banned_users])});"
+    #     cursor.execute(query, banned_users)
+    #     results = cursor.fetchall()
+    #     print(results)
+    #
+    #     con.close()
 
     @staticmethod
-    def checkBannedUsers(databaseName, banned_users):
-
+    def checkDatabaseEntry(databaseName):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
         cursor = con.cursor()
-        query = f"SELECT * FROM items WHERE userID NOT IN ({', '.join(['?' for _ in banned_users])});"
-        cursor.execute(query, banned_users)
-        results = cursor.fetchall()
-        print(results)
 
-        con.close()
+        while True:
 
+            # Execute a SELECT query to check for the desired entry
+            query = f"SELECT * FROM items"
+            cursor.execute(query)
+            result = cursor.fetchone()
+
+            if result:
+                DatabaseManagement.dequeue(DatabaseManagement.requestQueue, result[0])
+                print("Result found!")
+                # Entry found, close the connection and return the result
+                con.close()
+                return result
+
+            # Entry not found, wait for a while and then check again
+            mytime.sleep(1)
 
     @staticmethod
     def get_max_order_number(databaseName):
@@ -160,7 +192,7 @@ class DatabaseManagement:
                     (orderNb, expr, item, userID, timestamp))
 
         con.commit()
-        print(f"Enqueued: Order Number - {orderNb}, Expr {expr} , Item {item}, User ID - {userID} , Timestamp - {timestamp}")
+        print(f"Enqueued in Database: {databaseName}: Order Number - {orderNb}, Expr {expr} , Item {item}, User ID - {userID} , Timestamp - {timestamp}")
         cur.close()
         con.close()
 
@@ -175,7 +207,7 @@ class DatabaseManagement:
         if item:
             cur.execute('''DELETE FROM items WHERE orderNb=?''', (item[0],))
             con.commit()
-            print(f"Dequeued: Order Number - {item[0]}, Expr {item[1]} , Item {item[2]}, User ID - {item[3]} , Timestamp - {item[4]}")
+            print(f"Dequeued in Database: {databaseName}: Order Number - {item[0]}, Expr {item[1]} , Item {item[2]}, User ID - {item[3]} , Timestamp - {item[4]}")
             cur.close()
             con.close()
             return item[0], item[1], item[2], item[3], item[4]
@@ -186,14 +218,14 @@ class DatabaseManagement:
             return None, None, None, None, None
 
 if __name__ == "__main__":
-    #DatabaseManagement.enqueue("RequestQueue", 1,"order", "Negroni", 212,"12:30:12")
-    #DatabaseManagement.enqueue("RequestQueue", 2,"order", "Margerita", 123,"15:30:12")
+    #DatabaseManagement.enqueue("orderQueue", 1,"order", "Negroni", 212,"12:30:12")
+    #DatabaseManagement.enqueue("orderQueue", 2,"order", "Margerita", 123,"15:30:12")
     #DatabaseManagement.enqueue("RequestQueue", 3,"order", "Old Fashioned", 456,"19:30:12")
     #DatabaseManagement.checkBannedUsers("RequestQueue", [212])
     data = {
         'expr': "order",
-        'from': "11:00:00",
-        'to': "20:00:00",
+        'from': None,
+        'to': None,
         'banned_users': [212]
     }
-    DatabaseManagement.process_data("RequestQueue", data, "www.google.de")
+    DatabaseManagement.process_data("orderQueue", data)

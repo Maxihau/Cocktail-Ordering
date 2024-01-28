@@ -10,7 +10,7 @@ requestQueue = 'requestQueue.db'
 
 # Used when an HTTP is posted here
 # Adds the order to the right queue (or database)
-def add_item(expr, userID, item, timestamp):
+def add_item(expr, item, userID, timestamp):
     # Check the number of both databases
     numQueueRequest = DatabaseManagement.checkNumQueue(requestQueue)
     numQueueOrder = DatabaseManagement.checkNumQueue(orderQueue)
@@ -19,7 +19,7 @@ def add_item(expr, userID, item, timestamp):
     # If not, add it to the request queue
     # If yes, then add it to the order queue
     try:
-        DatabaseManagement.enqueue(requestQueue, -1, expr, userID, item, timestamp)
+        DatabaseManagement.enqueue(orderQueue, -1, expr, item, userID, timestamp)
     except Exception as e:
         print(f"Error while trying to a an item: {e}")
         raise e
@@ -41,7 +41,7 @@ def expr_item():
         print(timestamp)
 
         try:
-            add_item(expr, userID, item, timestamp)
+            add_item(expr, item, userID, timestamp)
         except NumberTooBigError as e:
             print(e)
             abort(500, "There was an internal error with the database. Please check console")

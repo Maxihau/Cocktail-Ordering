@@ -2,12 +2,42 @@ from ast import literal_eval
 import concurrent.futures
 from bottle import request, Bottle
 from DatabaseManagement import DatabaseManagement
+import requests
 
 app = Bottle()
 
 # Access to both databases
 orderQueue = 'orderQueue.db'
 requestQueue = 'requestQueue.db'
+executor = concurrent.futures.ThreadPoolExecutor()
+
+
+def process_order_async(callback_url):
+    try:
+        result = DatabaseManagement.checkDatabaseEntry(requestQueue)
+        # DatabaseManagement.process_data(orderQueue, data)
+        print(f"Result found in RequestRS: {result}")
+        resultWrapped = wrapToData(result)
+        # print("Sending to CALLBACK URL")
+        send_callback(callback_url, resultWrapped)
+
+        # Handle the result, send a callback, etc.
+        # You may want to handle callback_url here or in process_data itself
+    except Exception as e:
+        # Handle exceptions, log errors, etc.
+        print(f"An error occurred: {e}")
+
+
+def send_callback(callback_url, result):
+    try:
+        print("Trying to send to Callback-URL")
+        response = requests.post(callback_url, json=result)
+        response.raise_for_status()  # Raise an exception for bad responses (non-2xx)
+        print(f"Callback Response: {response.text}")
+        executor.shutdown()
+    except requests.exceptions.RequestException as e:
+        # Handle request exceptions
+        print(f"Callback Request Error: {e}")
 
 
 @app.route('/', method='POST')
@@ -46,27 +76,24 @@ def order():
     }
 
     # Use a thread pool to call the processing function asynchronously
-    with concurrent.futures.ThreadPoolExecutor() as executor:
-        future = executor.submit(process_data, data, callback_url)
-
-
-    # # Checks in a loop if a cocktail has been ordered
-    # # Use case: Script still has to check for a cocktail in RequestQueue.db even no order is in both queues
-    # while data_isEmpty:
-    #     orderNb, user_id, cocktail = DatabaseManagement.dequeue(requestQueue)
-    #
-    #     # Checks if the dequeued data is no empty. If yes, add it to the data to send it back to CPEE via callback
-    #     if cocktail is not None and user_id is not None and orderNb is not None:
-    #         data['orderNb'] = orderNb
-    #         data['user_id'] = user_id
-    #         data['cocktail'] = cocktail
-    #         data_isEmpty = False
-    #         DatabaseManagement.databaseBalanceManagement()
-    #         print(f"New Order: {cocktail} ordered by {user_id} with order number {orderNb}")
+    executor.submit(DatabaseManagement.process_data(orderQueue, data))
+    executor.submit(process_order_async, callback_url)
 
     return ''
 
 
+def wrapToData(result):
+    data = {
+        'orderNb': result[0],
+        'expr': result[1],
+        'item': result[2],
+        'userID': result[3],
+        'timestamp': result[4]
+    }
+    return data
+
+
 if __name__ == "__main__":
+
     #app.run(host="::", port=5123)
     app.run(host='localhost', port=8081, debug=True)

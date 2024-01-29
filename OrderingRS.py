@@ -1,3 +1,4 @@
+import requests
 from bottle import request, Bottle, abort
 from DatabaseManagement import DatabaseManagement
 from NumberTooBigError import NumberTooBigError
@@ -25,6 +26,28 @@ def add_item(expr, item, userID, timestamp):
         raise e
 
 
+def matching(data):
+    filters = DatabaseManagement.getAllFilters()
+
+    for filter in filters:
+        print("Checking filter")
+        processedFilter = DatabaseManagement.convert_filter_to_data(filter)
+        result = DatabaseManagement.matchFilterData(processedFilter, data)
+        if result:
+            print("Result found in matching")
+            DatabaseManagement.deleteFilterByCallbackURL(filter[5])
+            callback(data, filter[5])
+            print(processedFilter)
+            return True
+    return False
+
+
+def callback(result, callbackURL):
+    # headers = {'Content-Type': 'application/json'}
+    response = requests.put(callbackURL, json=result)
+    print(f"Response of Callback: {response}")
+
+
 # Handles the POST Request
 @app.route('/', method='POST')
 def expr_item():
@@ -35,13 +58,16 @@ def expr_item():
         item = data['item']
         userID = data['userID']
         timestamp = data['timestamp']
+
         print(expr)
         print(item)
         print(userID)
         print(timestamp)
 
         try:
-            add_item(expr, item, userID, timestamp)
+            if not matching(data):
+                print("Added item to OrderQueue")
+                add_item(expr, item, userID, timestamp)
         except NumberTooBigError as e:
             print(e)
             abort(500, "There was an internal error with the database. Please check console")
@@ -58,6 +84,5 @@ def expr_item():
 
 if __name__ == "__main__":
     # Local testing
-    #app.run(host='localhost', port=8080, debug=True)
-
-    app.run(host="::", port=5321)
+    app.run(host='localhost', port=8080, debug=True)
+    #app.run(host="::", port=5321)

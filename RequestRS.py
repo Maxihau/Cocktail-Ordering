@@ -1,54 +1,23 @@
 from ast import literal_eval
-import concurrent.futures
-from bottle import request, Bottle
+from bottle import request, Bottle, HTTPResponse
 from DatabaseManagement import DatabaseManagement
-import requests
 
 app = Bottle()
 
 # Access to both databases
 orderQueue = 'orderQueue.db'
 requestQueue = 'requestQueue.db'
-executor = concurrent.futures.ThreadPoolExecutor()
-
-
-def process_order_async(callback_url):
-    try:
-        result = DatabaseManagement.checkDatabaseEntry(requestQueue)
-        # DatabaseManagement.process_data(orderQueue, data)
-        print(f"Result found in RequestRS: {result}")
-        resultWrapped = wrapToData(result)
-        # print("Sending to CALLBACK URL")
-        send_callback(callback_url, resultWrapped)
-
-        # Handle the result, send a callback, etc.
-        # You may want to handle callback_url here or in process_data itself
-    except Exception as e:
-        # Handle exceptions, log errors, etc.
-        print(f"An error occurred: {e}")
-
-
-def send_callback(callback_url, result):
-    try:
-        print("Trying to send to Callback-URL")
-        response = requests.post(callback_url, json=result)
-        response.raise_for_status()  # Raise an exception for bad responses (non-2xx)
-        print(f"Callback Response: {response.text}")
-        executor.shutdown()
-    except requests.exceptions.RequestException as e:
-        # Handle request exceptions
-        print(f"Callback Request Error: {e}")
 
 
 @app.route('/', method='POST')
 def order():
-    # Access the form data
     form_data = request.forms
     form_data_dict = dict(form_data)
-
+    callback_url = request.headers.get("CPEE-Callback")
+    form_data = request.forms
+    form_data_dict = dict(form_data)
     callback_url = request.headers.get("CPEE-Callback")
     print(f"Callback URL: {callback_url}")
-
     print(form_data_dict)
     pattern = request.forms.get('pattern')
     print(f"Pattern: {pattern}")
@@ -67,33 +36,27 @@ def order():
     banned_users_array = literal_eval(str(banned_users))
     print(f"Banned users: {banned_users}")
 
-    data = {
+    filter = {
         'expr': expr,
         'item': item,
         'from': form_from,
         'to': form_to,
-        'banned_users': banned_users_array
+        'banned_users': banned_users_array,
+        'callbackURL': callback_url
     }
 
-    # Use a thread pool to call the processing function asynchronously
-    executor.submit(DatabaseManagement.process_data(orderQueue, data))
-    executor.submit(process_order_async, callback_url)
+    result = DatabaseManagement.process_data(orderQueue, filter)
 
-    return ''
+    if result is not None:
+        DatabaseManagement.dequeue(orderQueue, result["orderNb"])
+        return result
 
+    DatabaseManagement.createFilter(filter, requestQueue)
+    print("No Result found. Send Callback")
 
-def wrapToData(result):
-    data = {
-        'orderNb': result[0],
-        'expr': result[1],
-        'item': result[2],
-        'userID': result[3],
-        'timestamp': result[4]
-    }
-    return data
+    return HTTPResponse(status=200, headers={'CPEE-Callback': True})
 
 
 if __name__ == "__main__":
-
     #app.run(host="::", port=5123)
     app.run(host='localhost', port=8081, debug=True)

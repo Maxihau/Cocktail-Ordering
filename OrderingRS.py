@@ -5,37 +5,38 @@ from NumberTooBigError import NumberTooBigError
 
 app = Bottle()
 # Access to both databases
-orderQueue = 'orderQueue.db'
-requestQueue = 'requestQueue.db'
+order_queue = 'orderQueue.db'
+request_queue = 'requestQueue.db'
 
 
 # Used when an HTTP is posted here
 # Adds the order to the right queue (or database)
 def add_item(expr, item, userID, timestamp):
     # Check the number of both databases
-    numQueueRequest = DatabaseManagement.checkNumQueue(requestQueue)
-    numQueueOrder = DatabaseManagement.checkNumQueue(orderQueue)
+    numQueueRequest = DatabaseManagement.check_num_queue(request_queue)
+    numQueueOrder = DatabaseManagement.check_num_queue(order_queue)
 
     # Checks if a cocktail is already in the request queue
     # If not, add it to the request queue
     # If yes, then add it to the order queue
     try:
-        DatabaseManagement.enqueue(orderQueue, -1, expr, item, userID, timestamp)
+        DatabaseManagement.enqueue(order_queue, -1, expr, item, userID, timestamp)
     except Exception as e:
         print(f"Error while trying to a an item: {e}")
         raise e
 
 
+# Checks if the new input fulfills any filters in the RequestQueue
 def matching(data):
-    filters = DatabaseManagement.getAllFilters()
 
+    filters = DatabaseManagement.get_all_filters()
     for filter in filters:
-        print("Checking filter")
+        print("Checking one filter")
         processedFilter = DatabaseManagement.convert_filter_to_data(filter)
-        result = DatabaseManagement.matchFilterData(processedFilter, data)
+        result = DatabaseManagement.match_filter_data(processedFilter, data)
         if result:
             print("Result found in matching")
-            DatabaseManagement.deleteFilterByCallbackURL(filter[5])
+            DatabaseManagement.delete_filter_by_callback_url(filter[5])
             callback(data, filter[5])
             print(processedFilter)
             return True
@@ -84,5 +85,5 @@ def expr_item():
 
 if __name__ == "__main__":
     # Local testing
-    app.run(host='localhost', port=8080, debug=True)
-    #app.run(host="::", port=5321)
+    #app.run(host='localhost', port=8080, debug=True)
+    app.run(host="::", port=5321)

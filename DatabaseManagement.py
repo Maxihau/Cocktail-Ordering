@@ -5,12 +5,12 @@ from datetime import datetime
 
 
 class DatabaseManagement:
-    orderQueue = 'orderQueue.db'
-    requestQueue = 'requestQueue.db'
+    order_queue = 'orderQueue.db'
+    request_queue = 'requestQueue.db'
     folder_path = 'database'
 
     # For debugging
-    def checkDatabase(databaseName):
+    def check_database(databaseName):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
@@ -23,10 +23,8 @@ class DatabaseManagement:
         cur.close()
         con.close()
 
-
-
     @staticmethod
-    def createFilter(filterCriteria, databaseName):
+    def create_filter(filterCriteria, databaseName):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
@@ -54,9 +52,7 @@ class DatabaseManagement:
 
     @staticmethod
     def convert_filter_to_data(row):
-
         banned_users_str = row[4]
-
         if banned_users_str is None:
             banned_users = None
         else:
@@ -73,12 +69,10 @@ class DatabaseManagement:
 
         return data_object
 
-
-
     @staticmethod
-    def getAllFilters():
+    def get_all_filters():
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
-        db_path = os.path.join(DatabaseManagement.folder_path, DatabaseManagement.requestQueue)
+        db_path = os.path.join(DatabaseManagement.folder_path, DatabaseManagement.request_queue)
         con = sqlite3.connect(db_path)
         cur = con.cursor()
         cur.execute(
@@ -127,7 +121,8 @@ class DatabaseManagement:
             query += ' AND timestamp <= ?'
 
         # Add conditions for 'banned_users' if it exists in the data
-        if 'banned_users' in filterCriteria and filterCriteria['banned_users'] is not None and filterCriteria['banned_users']:
+        if 'banned_users' in filterCriteria and filterCriteria['banned_users'] is not None and filterCriteria[
+            'banned_users']:
             query += ' AND userID NOT IN ({})'.format(', '.join(['?' for _ in filterCriteria['banned_users']]))
 
         query += 'ORDER BY orderNb ASC'
@@ -140,7 +135,8 @@ class DatabaseManagement:
             params.append(filterCriteria['from'])
         if 'to' in filterCriteria and filterCriteria['to'] is not None:
             params.append(filterCriteria['to'])
-        if 'banned_users' in filterCriteria and filterCriteria['banned_users'] is not None and filterCriteria['banned_users']:
+        if 'banned_users' in filterCriteria and filterCriteria['banned_users'] is not None and filterCriteria[
+            'banned_users']:
             params.extend(filterCriteria['banned_users'])
 
         cur.execute(query, params)
@@ -162,12 +158,12 @@ class DatabaseManagement:
         con.close()
         if result:
             print(f"Result found: {result}")
-            return DatabaseManagement.wrapToData(result)
+            return DatabaseManagement.wrap_to_data(result)
 
         return None
 
     @staticmethod
-    def wrapToData(result):
+    def wrap_to_data(result):
         data = {
             'orderNb': result[0],
             'expr': result[1],
@@ -176,10 +172,11 @@ class DatabaseManagement:
             'timestamp': result[4]
         }
         return data
+
     @staticmethod
-    def deleteFilterByCallbackURL(callback_url):
+    def delete_filter_by_callback_url(callback_url):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
-        db_path = os.path.join(DatabaseManagement.folder_path, DatabaseManagement.requestQueue)
+        db_path = os.path.join(DatabaseManagement.folder_path, DatabaseManagement.request_queue)
         con = sqlite3.connect(db_path)
         cur = con.cursor()
         delete_query = '''
@@ -191,7 +188,7 @@ class DatabaseManagement:
         con.close()
 
     @staticmethod
-    def matchFilterData(filter_criteria, data):
+    def match_filter_data(filter_criteria, data):
         # Handle None values for filter_criteria['from'] and filter_criteria['to']
         from_time_str = filter_criteria['from']
         to_time_str = filter_criteria['to']
@@ -226,29 +223,6 @@ class DatabaseManagement:
         return filter_result
 
     @staticmethod
-    def checkDatabaseEntry(databaseName):
-        os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
-        db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
-        con = sqlite3.connect(db_path)
-        cursor = con.cursor()
-
-        while True:
-            # Execute a SELECT query to check for the desired entry
-            query = f"SELECT * FROM items"
-            cursor.execute(query)
-            result = cursor.fetchone()
-
-            if result:
-                DatabaseManagement.dequeue(DatabaseManagement.requestQueue, result[0])
-                print("Result found!")
-                # Entry found, close the connection and return the result
-                con.close()
-                return result
-
-            # Entry not found, wait for a while and then check again
-            mytime.sleep(1)
-
-    @staticmethod
     def get_max_order_number(databaseName):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
@@ -261,7 +235,7 @@ class DatabaseManagement:
         return max_order_number if max_order_number is not None else 0  # Return 0 if no entries are present
 
     @staticmethod
-    def checkNumQueue(databaseName):
+    def check_num_queue(databaseName):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
@@ -276,7 +250,6 @@ class DatabaseManagement:
             con.close()
             return result[0]
         else:
-            # print(result[0])
             cur.close()
             con.close()
             return 0
@@ -295,8 +268,6 @@ class DatabaseManagement:
         cur = con.cursor()
         cur.execute(
             '''CREATE TABLE IF NOT EXISTS items (orderNb INTEGER, expr TEXT, item TEXT, userID INTEGER, timestamp TEXT) ''')
-        # cur.execute('''INSERT INTO items (orderNb INTEGER, expr TEXT, item TEXT, userID INTEGER, timestamp TEXT) VALUES (?, ?, ?, ?, ?) ''',
-        #            (orderNb, expr, item, userID, timestamp))
         cur.execute('''INSERT INTO items (orderNb, expr, item, userID, timestamp) VALUES (?, ?, ?, ?, ?)''',
                     (orderNb, expr, item, userID, timestamp))
 
@@ -323,7 +294,6 @@ class DatabaseManagement:
             con.close()
             return item[0], item[1], item[2], item[3], item[4]
         else:
-            # print("Queue is empty")
             cur.close()
             con.close()
             return None, None, None, None, None

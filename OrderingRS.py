@@ -43,8 +43,8 @@ def matching(data):
 
 
 def callback(result, callbackURL):
-    # headers = {'Content-Type': 'application/json'}
-    response = requests.put(callbackURL, json=result)
+    headers = {'Content-Type': 'application/json'}
+    response = requests.put(callbackURL, json=result, headers=headers)
     print(f"Response of Callback: {response}")
 
 

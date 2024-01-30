@@ -54,7 +54,7 @@ def order():
     DatabaseManagement.createFilter(filter, requestQueue)
     print("No Result found. Send Callback")
 
-    return HTTPResponse(status=200, headers={'CPEE-Callback': True})
+    return HTTPResponse(status=200, headers={'CPEE-Callback': "true"})
 
 
 if __name__ == "__main__":

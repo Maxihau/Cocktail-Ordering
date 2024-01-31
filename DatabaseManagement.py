@@ -40,8 +40,10 @@ class DatabaseManagement:
 
         if filterCriteria['banned_users'] is None:
             banned_users_str = None
+        elif len(filterCriteria['banned_users']) == 0:
+            banned_users_str = None
         else:
-            banned_users_str = ','.join(filterCriteria['banned_users'])
+            banned_users_str = ','.join(map(str, filterCriteria['banned_users']))
 
         # Execute the query and commit the changes
         cur.execute(insert_query, (
@@ -56,14 +58,15 @@ class DatabaseManagement:
         if banned_users_str is None:
             banned_users = None
         else:
-            banned_users = banned_users_str.split(',')
+            banned_users = [int(user_id) for user_id in banned_users_str.split(',') if user_id.strip()]
+
 
         data_object = {
             'expr': row[0],
             'item': row[1],
             'from': row[2],
             'to': row[3],
-            'banned_users': banned_users,  # Assuming banned_users is a comma-separated string
+            'banned_users': banned_users,
             'callbackURL': row[5]
         }
 

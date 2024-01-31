@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import discord
 import requests
 
@@ -6,9 +8,9 @@ client = discord.Client(intents=intents)
 DISCORD_BOT_TOKEN = 'MTE4NDQzMzI3NzUzNzM2NjAzNg.Gf_dwn.RVRN64S767PjzcdnkWjLRSsHHqGfS8MxJ2u7U8'
 
 # # For testing locally
-# REST_SERVICE_URL = 'http://localhost:8080/'
+REST_SERVICE_URL = 'http://localhost:8080/'
 
-REST_SERVICE_URL = 'https://lehre.bpm.in.tum.de/ports/5321/'
+#REST_SERVICE_URL = 'https://lehre.bpm.in.tum.de/ports/5321/'
 
 @client.event
 async def on_ready():
@@ -30,7 +32,7 @@ async def on_message(message):
         if len(content) >= 1:
             expr, item = message.content.split(' ', 1)
             expr = expr[1:]
-            timestamp = message.created_at
+            timestamp = datetime.now().time()
             timestamp_str = timestamp.strftime("%H:%M:%S")
             payload = {'expr': expr, 'item': item, 'userID': message.author.id, 'timestamp': timestamp_str}
             print(f"Payload: {payload}")

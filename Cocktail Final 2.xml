@@ -3,7 +3,6 @@
   <dataelements>
     <cocktail_name/>
     <user_id/>
-    <orderNb/>
   </dataelements>
   <endpoints>
     <getOrder>https://lehre.bpm.in.tum.de/ports/5123/</getOrder>
@@ -33,14 +32,18 @@
           <parameters>
             <label>Is there a new order? (Check waiter queue)</label>
             <method>:post</method>
-            <arguments/>
+            <arguments>
+              <pattern>["order", "Negroni"]</pattern>
+              <from>06:00</from>
+              <to>15:00</to>
+              <banned_users>[265882770079744000]</banned_users>
+            </arguments>
           </parameters>
           <code>
             <prepare/>
-            <finalize output="result">data.cocktail_name = result['cocktail']
-data.user_id = result['user_id']
-data.orderNb = result['orderNb']</finalize>
-            <update output="result">data.cocktail = result</update>
+            <finalize output="result">data.cocktail_name = result['item']
+data.user_id = result['userID']</finalize>
+            <update output="result"/>
             <rescue output="result"/>
           </code>
           <annotations>

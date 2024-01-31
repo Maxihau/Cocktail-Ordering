@@ -17,12 +17,12 @@ def send_discord_message():
         # Convert the form data to a dictionary for easy processing (optional)
         form_data_dict = dict(form_data)
 
-        # Extract user ID and cocktail from the data
+        # Extract user ID and item from the data
         user_id = int(form_data_dict['user_id'])
-        cocktail = form_data_dict['cocktail']
-        print(f"UserID: {user_id}, cocktail: {cocktail}")
+        item = form_data_dict['item']
+        print(f"UserID: {user_id}, item: {item}")
 
-        message = f"Your cocktail {cocktail} is now ready to be picked up!"
+        message = f"Your item {item} is now ready to be picked up!"
 
         channel_id = createDmChannel(DISCORD_BOT_TOKEN, user_id)
         sendMessage(DISCORD_BOT_TOKEN, channel_id, message)

@@ -19,19 +19,25 @@ def order():
     pattern = request.forms.get('pattern')
     print(f"Pattern: {pattern}")
     pattern_array = literal_eval(str(pattern))
-    expr = pattern_array[0]
-    item = pattern_array[1]
+    expr = pattern_array[0] if pattern_array else None
+    item = pattern_array[1] if len(pattern_array) > 1 else None
 
     # Optionally get 'from', 'to', and 'banned_users' fields
-    form_from = request.forms.get('from')
+    form_from = request.forms.get('from', None)
     print(f"From: {form_from}")
-    form_to = request.forms.get('to')
+    form_to = request.forms.get('to', None)
     print(f"To: {form_to}")
 
     # Convert 'banned_users' string to a list
-    banned_users = request.forms.get('banned_users')
-    banned_users_array = literal_eval(str(banned_users))
-    print(f"Banned users: {banned_users}")
+    banned_users_str = request.forms.get('banned_users', '')  # default to '[]' if not provided
+    banned_users_array = literal_eval(banned_users_str) if banned_users_str else None
+
+    # Ensure that banned_users_array is a list of integers
+    if banned_users_array is not None:
+        banned_users_array = [int(user) for user in banned_users_array if
+                              isinstance(user, (int, str)) and str(user).isdigit()]
+
+    print(f"Banned users: {banned_users_array}")
 
     filter = {
         'expr': expr,
@@ -41,6 +47,7 @@ def order():
         'banned_users': banned_users_array,
         'callbackURL': callback_url
     }
+    filter = {key: value if value != '' else None for key, value in filter.items()}
 
     # Checks if anything in the order queue matches the new filter
     result = DatabaseManagement.process_data(order_queue, filter)
@@ -58,6 +65,6 @@ def order():
 
 
 if __name__ == "__main__":
-    app.run(host="::", port=5123)
+    #app.run(host="::", port=5123)
     # Local testing
-    # app.run(host='localhost', port=8081, debug=True)
+    app.run(host='localhost', port=8081, debug=True)

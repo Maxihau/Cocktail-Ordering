@@ -85,5 +85,5 @@ def expr_item():
 
 if __name__ == "__main__":
     # Local testing
-    #app.run(host='localhost', port=8080, debug=True)
-    app.run(host="::", port=5321)
+    app.run(host='localhost', port=8080, debug=True)
+    #app.run(host="::", port=5321)

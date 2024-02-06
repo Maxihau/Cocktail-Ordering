@@ -1,7 +1,8 @@
 import requests
 from bottle import request, Bottle, abort
-from DatabaseManagement import DatabaseManagement
+from DatabaseManagement import DatabaseManagement, ItemRepository
 from NumberTooBigError import NumberTooBigError
+
 
 app = Bottle()
 # Access to both databases
@@ -56,19 +57,25 @@ def expr_item():
 
     if 'expr' in data and 'item' in data and 'userID' in data and 'timestamp' in data:
         expr = data['expr']
-        item = data['item']
+        items = [data['item']] if ',' not in data['item'] else data['item'].split(', ')
+
+        # for i in range(len(items)):
+        #     items = checkItemSpelling(items)
+
         userID = data['userID']
         timestamp = data['timestamp']
 
         print(expr)
-        print(item)
+        print(items)
         print(userID)
         print(timestamp)
 
+
         try:
-            if not matching(data):
-                print("Added item to OrderQueue")
-                add_item(expr, item, userID, timestamp)
+            for item in items:
+                if not matching(data):
+                    print("Added item to OrderQueue")
+                    add_item(expr, item, userID, timestamp)
         except NumberTooBigError as e:
             print(e)
             abort(500, "There was an internal error with the database. Please check console")
@@ -77,10 +84,36 @@ def expr_item():
             abort(500, "Unknown error. Check server console")
 
         # Print the cocktail and the customer's name
-        print(f"Expr {expr} with Item: {item} requested by {userID} at time: {timestamp}")
+        print(f"Expr {expr} with item(s): {items} requested by {userID} at time: {timestamp}")
         return ''
     else:
         abort(422, "Wrong data (format)")
+
+
+# def checkItemSpelling(provided_item):
+#
+#     # Tokenize the provided item
+#     provided_tokens = nlp(provided_item)
+#
+#     # Initialize variables to store the best match and its similarity score
+#     best_match = None
+#     best_similarity = 0.0
+#
+#     # Compare with each valid item
+#     for valid_item in ItemRepository.get_all_valid_items():  # Implement get_all_valid_items() based on your data source
+#         valid_tokens = nlp(valid_item)
+#
+#         # Calculate similarity between tokens
+#         similarity = provided_tokens.similarity(valid_tokens)
+#
+#         # Adjust the similarity threshold based on your needs
+#         if similarity > best_similarity:
+#             # If similarity is above the threshold, update the best match
+#             best_match = valid_item
+#             best_similarity = similarity
+#
+#     # Return the best match (or the original item if no match is found)
+#     return best_match if best_similarity > 0.7 else provided_item
 
 
 if __name__ == "__main__":

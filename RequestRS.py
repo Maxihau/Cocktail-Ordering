@@ -1,5 +1,5 @@
 from ast import literal_eval
-from bottle import request, Bottle, HTTPResponse
+from bottle import request, Bottle, HTTPResponse, abort
 from DatabaseManagement import DatabaseManagement
 
 app = Bottle()
@@ -18,9 +18,15 @@ def order():
     print(f"Data dict: {form_data_dict}")
     pattern = request.forms.get('pattern')
     print(f"Pattern: {pattern}")
-    pattern_array = literal_eval(str(pattern))
+    try:
+        pattern_array = literal_eval(pattern)
+        if not isinstance(pattern_array, list):
+            raise ValueError("Pattern should be a list.")
+    except (ValueError, SyntaxError):
+        abort(422, "Invalid pattern format. Must be a list.")
+
     expr = pattern_array[0] if pattern_array else None
-    item = pattern_array[1] if len(pattern_array) > 1 else None
+    items = pattern_array[1:] if len(pattern_array) > 1 else None
 
     # Optionally get 'from', 'to', and 'banned_users' fields
     form_from = request.forms.get('from', None)
@@ -41,7 +47,7 @@ def order():
 
     filter = {
         'expr': expr,
-        'item': item,
+        'item': items,
         'from': form_from,
         'to': form_to,
         'banned_users': banned_users_array,

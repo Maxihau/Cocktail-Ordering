@@ -4,6 +4,7 @@ import time as mytime
 from datetime import datetime
 
 
+
 class DatabaseManagement:
     order_queue = 'orderQueue.db'
     request_queue = 'requestQueue.db'
@@ -37,6 +38,10 @@ class DatabaseManagement:
                 INSERT INTO filters (expr, item, from_time, to_time, banned_users, callbackURL)
                 VALUES (?, ?, ?, ?, ?, ?)
             '''
+
+        if filterCriteria['item'] is not None:
+            items_list = filterCriteria['item']
+            filterCriteria['item'] = ','.join(map(str, items_list))
 
         if filterCriteria['banned_users'] is None:
             banned_users_str = None
@@ -116,8 +121,10 @@ class DatabaseManagement:
         '''
 
         # Add conditions for 'from' and 'to' if they exist in the data
+        # Modify the 'item' condition to use the IN operator if multiple items are provided
         if 'item' in filterCriteria and filterCriteria['item'] is not None:
-            query += ' AND item = ?'
+            items_list = filterCriteria['item']
+            query += f' AND item IN ({", ".join(["?" for _ in items_list])})'
         if 'from' in filterCriteria and filterCriteria['from'] is not None:
             query += ' AND timestamp >= ?'
         if 'to' in filterCriteria and filterCriteria['to'] is not None:
@@ -133,7 +140,7 @@ class DatabaseManagement:
         # Execute the query with parameters
         params = [filterCriteria['expr']]
         if 'item' in filterCriteria and filterCriteria['item'] is not None:
-            params.append((filterCriteria['item']))
+            params.extend(items_list)
         if 'from' in filterCriteria and filterCriteria['from'] is not None:
             params.append(filterCriteria['from'])
         if 'to' in filterCriteria and filterCriteria['to'] is not None:
@@ -214,10 +221,16 @@ class DatabaseManagement:
             # Handle the case where timestamp is None
             data_time = None
 
+        item_matches = (
+                filter_criteria['item'] is None or
+                (',' not in filter_criteria['item'] and data['item'] == filter_criteria['item']) or
+                any(item.strip() == data['item'] for item in filter_criteria['item'].split(','))
+        )
+
         # Check if the filter criteria is true or false
         filter_result = (
                 (filter_criteria['expr'] is None or data['expr'] == filter_criteria['expr']) and
-                (filter_criteria['item'] is None or data['item'] == filter_criteria['item']) and
+                item_matches and
                 (from_time is None or (data_time is not None and from_time <= data_time)) and
                 (to_time is None or (data_time is not None and data_time <= to_time)) and
                 (filter_criteria['banned_users'] is None or data['userID'] not in filter_criteria['banned_users'])
@@ -300,6 +313,31 @@ class DatabaseManagement:
             cur.close()
             con.close()
             return None, None, None, None, None
+
+
+class ItemRepository:
+    @staticmethod
+    def get_all_valid_items():
+        os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
+        db_path = os.path.join(DatabaseManagement.folder_path, "items_repo.db")
+        con = sqlite3.connect(db_path)
+        cur = con.cursor()
+
+        try:
+            # Execute a query to fetch all valid items
+            cur.execute("SELECT name FROM items")
+
+            # Fetch all the rows as a list of tuples
+            rows = cur.fetchall()
+
+            # Extract the item names from the tuples
+            valid_items = [row[0] for row in rows]
+
+            return valid_items
+
+        finally:
+            # Close the database connection
+            con.close()
 
 
 if __name__ == "__main__":

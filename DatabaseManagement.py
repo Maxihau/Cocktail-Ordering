@@ -316,14 +316,40 @@ class DatabaseManagement:
 
 
 class ItemRepository:
+
+    @staticmethod
+    def add_item_to_itemsDB(item):
+        os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
+        db_path = os.path.join(DatabaseManagement.folder_path, "items.db")
+        con = sqlite3.connect(db_path)
+        cur = con.cursor()
+        try:
+            # Check if the item already exists in the database
+            if item not in ItemRepository.get_all_valid_items():
+                # Execute a query to insert the item into the database
+                cur.execute(
+                    '''CREATE TABLE IF NOT EXISTS items (name TEXT) ''')
+                cur.execute("INSERT INTO items (name) VALUES (?)", (item,))
+
+                # Commit the changes to the database
+                con.commit()
+                print(f"Item '{item}' added to the database.")
+            else:
+                print(f"Item '{item}' already exists in the database and will not be added.")
+        finally:
+            # Close the database connection
+            con.close()
+
     @staticmethod
     def get_all_valid_items():
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
-        db_path = os.path.join(DatabaseManagement.folder_path, "items_repo.db")
+        db_path = os.path.join(DatabaseManagement.folder_path, "items.db")
         con = sqlite3.connect(db_path)
         cur = con.cursor()
 
         try:
+            cur.execute(
+                '''CREATE TABLE IF NOT EXISTS items (name TEXT) ''')
             # Execute a query to fetch all valid items
             cur.execute("SELECT name FROM items")
 

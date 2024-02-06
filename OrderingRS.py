@@ -2,7 +2,10 @@ import requests
 from bottle import request, Bottle, abort
 from DatabaseManagement import DatabaseManagement, ItemRepository
 from NumberTooBigError import NumberTooBigError
+import spacy
 
+# Load the spaCy model
+nlp = spacy.load("en_core_web_sm")
 
 app = Bottle()
 # Access to both databases
@@ -29,7 +32,6 @@ def add_item(expr, item, userID, timestamp):
 
 # Checks if the new input fulfills any filters in the RequestQueue
 def matching(data):
-
     filters = DatabaseManagement.get_all_filters()
     for filter in filters:
         print("Checking one filter")
@@ -57,7 +59,21 @@ def expr_item():
 
     if 'expr' in data and 'item' in data and 'userID' in data and 'timestamp' in data:
         expr = data['expr']
-        items = [data['item']] if ',' not in data['item'] else data['item'].split(', ')
+
+        if ',' not in data['item']:
+            # If no comma is present, create a list with the item as the only element
+            items = [checkItemSpelling([data['item']])]
+            data['item'] = items
+        else:
+            # If a comma is present, split the item string into a list using ', ' as the delimiter
+            items = data['item'].split(', ')
+            corrected_items = []
+            for item in items:
+                print(f"(wrong) item name {item}")
+                corrected_item = checkItemSpelling(item)
+                print(f"(corrected item name {corrected_item}")
+                corrected_items.append(corrected_item)
+            data['item'] = str(corrected_items)
 
         # for i in range(len(items)):
         #     items = checkItemSpelling(items)
@@ -69,7 +85,6 @@ def expr_item():
         print(items)
         print(userID)
         print(timestamp)
-
 
         try:
             for item in items:
@@ -90,30 +105,29 @@ def expr_item():
         abort(422, "Wrong data (format)")
 
 
-# def checkItemSpelling(provided_item):
-#
-#     # Tokenize the provided item
-#     provided_tokens = nlp(provided_item)
-#
-#     # Initialize variables to store the best match and its similarity score
-#     best_match = None
-#     best_similarity = 0.0
-#
-#     # Compare with each valid item
-#     for valid_item in ItemRepository.get_all_valid_items():  # Implement get_all_valid_items() based on your data source
-#         valid_tokens = nlp(valid_item)
-#
-#         # Calculate similarity between tokens
-#         similarity = provided_tokens.similarity(valid_tokens)
-#
-#         # Adjust the similarity threshold based on your needs
-#         if similarity > best_similarity:
-#             # If similarity is above the threshold, update the best match
-#             best_match = valid_item
-#             best_similarity = similarity
-#
-#     # Return the best match (or the original item if no match is found)
-#     return best_match if best_similarity > 0.7 else provided_item
+def checkItemSpelling(provided_item):
+    # Tokenize the provided item
+    provided_tokens = nlp(str(provided_item))
+
+    # Initialize variables to store the best match and its similarity score
+    best_match = None
+    best_similarity = 0.0
+
+    # Compare with each valid item
+    for valid_item in ItemRepository.get_all_valid_items():
+        valid_tokens = nlp(valid_item)
+        # Calculate similarity between tokens
+        similarity = provided_tokens.similarity(valid_tokens)
+
+        # Adjust the similarity threshold based on your needs
+        if similarity > best_similarity:
+            # If similarity is above the threshold, update the best match
+            best_match = valid_item
+            best_similarity = similarity
+            print(f"best match {best_match} and best similarity {best_similarity}")
+
+    # Return the best match (or the original item if no match is found)
+    return best_match if best_similarity > 0.3 else provided_item
 
 
 if __name__ == "__main__":

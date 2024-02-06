@@ -1,6 +1,6 @@
 from ast import literal_eval
 from bottle import request, Bottle, HTTPResponse, abort
-from DatabaseManagement import DatabaseManagement
+from DatabaseManagement import DatabaseManagement, ItemRepository
 
 app = Bottle()
 
@@ -27,6 +27,9 @@ def order():
 
     expr = pattern_array[0] if pattern_array else None
     items = pattern_array[1:] if len(pattern_array) > 1 else None
+    for item in items:
+        ItemRepository.add_item_to_itemsDB(item)
+
 
     # Optionally get 'from', 'to', and 'banned_users' fields
     form_from = request.forms.get('from', None)
@@ -71,6 +74,6 @@ def order():
 
 
 if __name__ == "__main__":
-    #app.run(host="::", port=5123)
+    app.run(host="::", port=5123)
     # Local testing
-    app.run(host='localhost', port=8081, debug=True)
+    #app.run(host='localhost', port=8081, debug=True)

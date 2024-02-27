@@ -40,7 +40,7 @@ The following packages are needed:
 
 ### Execution
 
-Before executing, please add your Discord token into the "Discord_Token.txt" file in the repository in order to work. (To create a Discord Token, see this [instruction](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token))
+Before executing, please add your Discord token into the "Discord_Token.txt" file in the repository in order to work. (To create a Discord Token, see this [instruction](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)).
 
 Execute the following classes in any order:
 * Discord_BOT.py
@@ -52,7 +52,7 @@ Once all instances are running, create and execute a CPEE instance using the "Co
 
 The system is now ready for use!
 
-The user now can send a direct message via Discord to the Discord bot with the Discord User ID "1184433277537366036".
+The user now can send a direct message via Discord to the Discord bot with the Discord (For the Name, see the instructions for creating the Discord Bot).
 
 The message must be structured as follows:
 

@@ -158,7 +158,7 @@ This class uses the Discord API and the Requests library to handle incoming mess
 
 This class processes incoming orders redirected by the Discord bot. It checks spelling and matches existing CPEE requests with ordered items. It either sends matched items via the callback URL for processing or enqueues unmatched orders.
 
-Used libraries, frameworks: "requests", "bottle", "fuzzywuzzy" (String matching)
+Used libraries, frameworks: "requests", "bottle", "fuzzywuzzy" (String matching).
 
 ##### Methods
 
@@ -176,13 +176,13 @@ Used libraries, frameworks: "bottle", "ast" ("literal_eval" to check if the inpu
 
 ##### Methods
 
-* **order**: The main function checks the data for syntax correctness, adds words to the database for spelling checks (See [OrderingRS](#orderingrspy)/ check_word_spelling), and processes requests by either sending back an order or confirming the callback URL and enqueuing the request.
+* **order**: The main function checks the data for syntax correctness, adds words to the database for spelling checks (See [OrderingRS](#orderingrspy) / check_word_spelling), and processes requests by either sending back an order or confirming the callback URL and enqueuing the request.
 
 ### ItemReadyMessage.py
 
 This class notifies users when the CPEE tool has completed order processing. It uses the Discord API to send a message to the user, utilizing the same bot.
 
-Used libraries, framewords: "bottle", "Discord API", "requests"
+Used libraries, framewords: "bottle", "Discord API", "requests".
 
 ##### Methods
 

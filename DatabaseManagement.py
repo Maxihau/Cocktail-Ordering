@@ -324,7 +324,7 @@ class WordsRepository:
             cur.execute(
                 '''CREATE TABLE IF NOT EXISTS words (name TEXT) ''')
             # Execute a query to fetch all valid items
-            cur.execute("SELECT name FROM items")
+            cur.execute("SELECT name FROM words")
 
             # Fetch all the rows as a list of tuples
             rows = cur.fetchall()

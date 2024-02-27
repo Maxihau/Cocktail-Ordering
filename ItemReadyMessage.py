@@ -47,6 +47,6 @@ def send_message(token, channel_id, message):
 
 if __name__ == '__main__':
     # Local test
-    # app.run(host='localhost', port=8081, debug=True)
+    app.run(host='localhost', port=8081, debug=True)
 
-    app.run(host="::", port=5001)
+    #app.run(host="::", port=5001)

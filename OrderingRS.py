@@ -31,6 +31,7 @@ def matching(data, item):
         processed_request = DatabaseManagement.convert_request_to_data(request_cpee)
         result = DatabaseManagement.match_new_order(processed_request, data, item)
         if result:
+            data['item'] = item
             print("Result found in matching")
             DatabaseManagement.dequeue_filter_by_callback_url(request_cpee[5])
             callback(data, request_cpee[5])
@@ -51,14 +52,14 @@ def expr_item():
     data = request.json
 
     if 'expr' in data and 'item' in data and 'userID' in data and 'timestamp' in data:
-        expr = check_word_spelling(data['expr'])
-
+        data['expr'] = check_word_spelling(data['expr'])
         # User has to add a ',' between each item ordered
         # The items were already checked by the discord bot, therefore it should only be one of both cases
         if ',' not in data['item']:
             # If no comma is present, create a list with the item as the only element
             items = [check_word_spelling(data['item'])]
             data['item'] = items
+
         elif ',' in data['item']:
             # If a comma is present, split the item string into a list using ', ' as the delimiter
             items = data['item'].split(', ')
@@ -68,28 +69,27 @@ def expr_item():
                 corrected_item = check_word_spelling(item)
                 print(f"(corrected item name {corrected_item}")
                 corrected_items.append(corrected_item)
-            data['item'] = str(corrected_items)
+            data['item'] = corrected_items
         else:
             abort(500, "Wrong input error. It seems that there were no items ordered")
-        userID = data['userID']
-        timestamp = data['timestamp']
 
-        print(expr)
-        print(items)
-        print(userID)
-        print(timestamp)
+
+        print(data['expr'])
+        print(data['item'])
+        print(data['userID'])
+        print(data['item'])
 
         try:
-            for item in items:
+            for item in data['item']:
                 if not matching(data, item):
                     print("Added item to OrderQueue")
-                    add_item(expr, item, userID, timestamp)
+                    add_item(data['expr'], item, data['userID'], data['timestamp'])
         except Exception as e:
             print(e)
             abort(500, "Unknown error. Check server console")
 
         # Print the cocktail and the customer's name
-        print(f"Expr {expr} with item(s): {items} requested by {userID} at time: {timestamp}")
+        print(f"Expr {data['expr']} with item(s): {data['item']} requested by {data['userID']} at time: {data['timestamp']}")
         return ''
     else:
         abort(422, "Wrong data (format)")

@@ -49,7 +49,7 @@ async def on_message(message):
 
                 # Feedback to the user
                 if response.status_code == 200:
-                    await message.channel.send(f"Your {expr} has been placed: {item} at {timestamp_str}")
+                    await message.channel.send(f"Your order has been placed at {timestamp_str}")
                 else:
                     await message.channel.send(f"Failed to place the {expr}. Please try again.")
 

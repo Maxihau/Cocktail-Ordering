@@ -2,7 +2,7 @@
   <executionhandler>ruby</executionhandler>
   <dataelements>
     <item/>
-    <user_id>265882770079744000</user_id>
+    <user_id/>
   </dataelements>
   <endpoints>
     <getOrder>https://lehre.bpm.in.tum.de/ports/5123/</getOrder>
@@ -33,9 +33,9 @@
             <label>Is there a new order? (Check waiter queue)</label>
             <method>:post</method>
             <arguments>
-              <pattern>["order", "Negroni", "Old Fashioned"]</pattern>
+              <pattern>["order", "Negroni", "Daiquiri"]</pattern>
               <from>06:00</from>
-              <to>17:00</to>
+              <to>20:00</to>
               <banned_users>[123422324, 3421524521]</banned_users>
             </arguments>
           </parameters>
@@ -79,63 +79,585 @@ data.user_id = result['userID']</finalize>
           </documentation>
         </call>
         <choose mode="exclusive">
-          <alternative condition="!data.cocktail == 'Bloody Mary'">
+          <alternative condition="data.item = 'Negroni'">
             <_probability>
               <_probability_min/>
               <_probability_max/>
               <_probability_avg/>
             </_probability>
+            <call id="a3" endpoint="sendMsg">
+              <parameters>
+                <label>Set up glass</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Setting up glass"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <call id="a8" endpoint="sendMsg">
+              <parameters>
+                <label>Add Gin</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Adding Gin"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <call id="a4" endpoint="sendMsg">
+              <parameters>
+                <label>Add Campari</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Adding Campari"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <call id="a5" endpoint="sendMsg">
+              <parameters>
+                <label>Add Wermut</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Adding Wermut"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <call id="a6" endpoint="sendMsg">
+              <parameters>
+                <label>Add ice cubes</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Adding ice cubes"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <call id="a7" endpoint="sendMsg">
+              <parameters>
+                <label>Mix</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Mixing cocktail"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <call id="a9" endpoint="sendMsg">
+              <parameters>
+                <label>Add slice of orange</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Adding a slice of orange"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
           </alternative>
-          <alternative condition="!data.cocktail == 'Gin Tonic'">
+          <alternative condition="data.item == 'Daiquiri'">
             <_probability>
               <_probability_min/>
               <_probability_max/>
               <_probability_avg/>
             </_probability>
+            <call id="a10" endpoint="sendMsg">
+              <parameters>
+                <label>Set up glass</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Setting up glass"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <call id="a11" endpoint="sendMsg">
+              <parameters>
+                <label>Add white rum</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Adding white rum"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <call id="a12" endpoint="sendMsg">
+              <parameters>
+                <label>Add lime juice</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Adding lime juice"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <call id="a13" endpoint="sendMsg">
+              <parameters>
+                <label>Add sugar syrup</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Adding sugar syrup"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
+            <call id="a14" endpoint="sendMsg">
+              <parameters>
+                <label>Adding ice cubes</label>
+                <method>:post</method>
+                <arguments>
+                  <user_id>!data.user_id</user_id>
+                  <message>"Adding ice cubes"</message>
+                </arguments>
+              </parameters>
+              <code>
+                <prepare/>
+                <finalize output="result"/>
+                <update output="result"/>
+                <rescue output="result"/>
+              </code>
+              <annotations>
+                <_generic/>
+                <_timing>
+                  <_timing_weight/>
+                  <_timing_avg/>
+                  <explanations/>
+                </_timing>
+                <_shifting>
+                  <_shifting_type>Duration</_shifting_type>
+                </_shifting>
+                <_context_data_analysis>
+                  <probes/>
+                  <ips/>
+                </_context_data_analysis>
+                <report>
+                  <url/>
+                </report>
+                <_notes>
+                  <_notes_general/>
+                </_notes>
+              </annotations>
+              <documentation>
+                <input/>
+                <output/>
+                <implementation>
+                  <description/>
+                </implementation>
+                <code>
+                  <description/>
+                </code>
+              </documentation>
+            </call>
           </alternative>
-          <alternative condition="!data.cocktail == 'Negroni'">
-            <_probability>
-              <_probability_min/>
-              <_probability_max/>
-              <_probability_avg/>
-            </_probability>
-          </alternative>
-          <alternative condition="!data.cocktail == 'Old Fashioned'">
-            <_probability>
-              <_probability_min/>
-              <_probability_max/>
-              <_probability_avg/>
-            </_probability>
-          </alternative>
-          <alternative condition="!data.cocktail == 'Dry Martini'">
-            <_probability>
-              <_probability_min/>
-              <_probability_max/>
-              <_probability_avg/>
-            </_probability>
-          </alternative>
-          <alternative condition="!data.cocktail == 'Margarita'">
-            <_probability>
-              <_probability_min/>
-              <_probability_max/>
-              <_probability_avg/>
-            </_probability>
-          </alternative>
-          <alternative condition="!data.cocktail == 'Aperol Spritz'">
-            <_probability>
-              <_probability_min/>
-              <_probability_max/>
-              <_probability_avg/>
-            </_probability>
-          </alternative>
-          <alternative condition="!data.cocktail == 'Mojito'">
-            <_probability>
-              <_probability_min/>
-              <_probability_max/>
-              <_probability_avg/>
-            </_probability>
-          </alternative>
-          <otherwise/>
+          <otherwise></otherwise>
         </choose>
         <call id="a2" endpoint="sendMsg">
           <parameters>
@@ -143,7 +665,7 @@ data.user_id = result['userID']</finalize>
             <method>:post</method>
             <arguments>
               <user_id>!data.user_id</user_id>
-              <item>!data.item</item>
+              <message>!data.item+" is ready!"</message>
             </arguments>
           </parameters>
           <code>

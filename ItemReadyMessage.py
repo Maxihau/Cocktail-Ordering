@@ -17,10 +17,9 @@ def send_discord_message():
 
         # Extract user ID and item from the data
         user_id = int(form_data_dict['user_id'])
-        item = form_data_dict['item']
-        print(f"UserID: {user_id}, item: {item}")
+        message = form_data_dict['message']
+        print(f"UserID: {user_id}, message: {message}")
 
-        message = f"Your item {item} is now ready to be picked up!"
         # Create dm channel
         channel_id = create_dm_channel(DISCORD_BOT_TOKEN, user_id)
         # Send message

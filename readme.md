@@ -73,7 +73,7 @@ The CPEE tool is modular, service oriented workflow execution engine (For more i
 
 ![Screenshot Criteria.png](Screenshots%2FScreenshot%20Criteria.png)
 * After that go to the Execution tab up which is at the top of the website
-![Screenshot Execution.png](Screenshots%2FScreenshot%20Execution.png)
+![Screenshot Execution.png](Screenshots%2FScreenshot%20Execution.png){ width=80 }
 
 ## Features
 

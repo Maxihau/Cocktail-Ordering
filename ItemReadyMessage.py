@@ -21,8 +21,9 @@ def send_discord_message():
         print(f"UserID: {user_id}, item: {item}")
 
         message = f"Your item {item} is now ready to be picked up!"
-
+        # Create dm channel
         channel_id = create_dm_channel(DISCORD_BOT_TOKEN, user_id)
+        # Send message
         send_message(DISCORD_BOT_TOKEN, channel_id, message)
     except Exception as e:
         return {'success': False, 'message': f"An error occurred: {e}"}

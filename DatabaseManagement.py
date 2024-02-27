@@ -226,7 +226,6 @@ class DatabaseManagement:
                 (from_time is None or (data_time is not None and from_time <= data_time)) and
                 (to_time is None or (data_time is not None and data_time <= to_time)) and
                 (filter_criteria['banned_users'] is None or data['userID'] not in filter_criteria['banned_users'])
-            # Add more conditions as needed
         )
         return filter_result
 
@@ -338,7 +337,8 @@ class WordsRepository:
             # Close the database connection
             con.close()
 
-#For test purposes
+
+# For test purposes
 if __name__ == "__main__":
     # DatabaseManagement.enqueue("orderQueue", 1,"order", "Negroni", 212,"12:30:12")
     # DatabaseManagement.enqueue("orderQueue", 2,"order", "Margerita", 123,"15:30:12")

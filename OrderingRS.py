@@ -12,7 +12,6 @@ request_queue = 'requestQueue.db'
 # Used when an HTTP is posted
 # Adds the order to the right queue (or database)
 def add_item(expr, item, userID, timestamp):
-
     # Checks if a cocktail is already in the request queue
     # If not, add it to the request queue
     # If yes, then add it to the order queue
@@ -38,6 +37,7 @@ def matching(data, item):
             print(processed_request)
             return True
     return False
+
 
 # Calls back the CPEE tool via the callback-url
 def callback(result, callbackURL):
@@ -73,13 +73,13 @@ def expr_item():
         else:
             abort(500, "Wrong input error. It seems that there were no items ordered")
 
-
         print(data['expr'])
         print(data['item'])
         print(data['userID'])
         print(data['item'])
 
         try:
+            # Matching the item with the queued requests
             for item in data['item']:
                 if not matching(data, item):
                     print("Added item to OrderQueue")
@@ -89,7 +89,8 @@ def expr_item():
             abort(500, "Unknown error. Check server console")
 
         # Print the cocktail and the customer's name
-        print(f"Expr {data['expr']} with item(s): {data['item']} requested by {data['userID']} at time: {data['timestamp']}")
+        print(
+            f"Expr {data['expr']} with item(s): {data['item']} requested by {data['userID']} at time: {data['timestamp']}")
         return ''
     else:
         abort(422, "Wrong data (format)")

@@ -54,6 +54,10 @@ Example:
 ```
 Both items in this case will then be ordered
 
+Example with **typos**:
+
+![Screenshot Example.png](Screenshots%2FScreenshot%20Example.png)
+
 ### CPEE Tool
 
 

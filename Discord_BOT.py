@@ -30,6 +30,7 @@ async def on_message(message):
         content = message.content.split(' ')
 
         if len(content) >= 1:
+            # Handling user input errors
             try:
                 expr, item = message.content.split(' ', 1)
             except Exception as e:

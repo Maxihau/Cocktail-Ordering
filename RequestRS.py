@@ -27,6 +27,7 @@ def order():
 
     expr = pattern_array[0] if pattern_array else None
     items = pattern_array[1:] if len(pattern_array) > 1 else None
+    # Adds the words to the words database
     for item in items:
         WordsRepository.add_word_to_wordsDB(item)
     WordsRepository.add_word_to_wordsDB(expr)

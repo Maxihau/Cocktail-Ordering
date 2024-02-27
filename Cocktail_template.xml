@@ -33,10 +33,10 @@
             <label>Is there a new order? (Check waiter queue)</label>
             <method>:post</method>
             <arguments>
-              <pattern>["order", "Negroni"]</pattern>
+              <pattern>["order", "Negroni", "Old Fashioned"]</pattern>
               <from>06:00</from>
-              <to>15:00</to>
-              <banned_users>[265882770079744000]</banned_users>
+              <to>17:00</to>
+              <banned_users/>
             </arguments>
           </parameters>
           <code>
@@ -184,7 +184,6 @@ data.user_id = result['userID']</finalize>
             </code>
           </documentation>
         </call>
-        <stop id="a3"/>
       </loop>
     </description>
   </description>

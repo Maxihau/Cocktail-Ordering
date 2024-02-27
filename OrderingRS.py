@@ -1,11 +1,7 @@
 import requests
 from bottle import request, Bottle, abort
-from DatabaseManagement import DatabaseManagement, ItemRepository
-from NumberTooBigError import NumberTooBigError
-import spacy
-
-# Load the spaCy model
-nlp = spacy.load("en_core_web_sm")
+from DatabaseManagement import DatabaseManagement, WordsRepository
+from fuzzywuzzy import fuzz
 
 app = Bottle()
 # Access to both databases
@@ -13,39 +9,36 @@ order_queue = 'orderQueue.db'
 request_queue = 'requestQueue.db'
 
 
-# Used when an HTTP is posted here
+# Used when an HTTP is posted
 # Adds the order to the right queue (or database)
 def add_item(expr, item, userID, timestamp):
-    # Check the number of both databases
-    numQueueRequest = DatabaseManagement.check_num_queue(request_queue)
-    numQueueOrder = DatabaseManagement.check_num_queue(order_queue)
 
     # Checks if a cocktail is already in the request queue
     # If not, add it to the request queue
     # If yes, then add it to the order queue
     try:
-        DatabaseManagement.enqueue(order_queue, -1, expr, item, userID, timestamp)
+        DatabaseManagement.enqueue_order(order_queue, -1, expr, item, userID, timestamp)
     except Exception as e:
         print(f"Error while trying to a an item: {e}")
         raise e
 
 
 # Checks if the new input fulfills any filters in the RequestQueue
-def matching(data):
-    filters = DatabaseManagement.get_all_filters()
-    for filter in filters:
+def matching(data, item):
+    requests_cpee = DatabaseManagement.get_all_requests()
+    for request_cpee in requests_cpee:
         print("Checking one filter")
-        processedFilter = DatabaseManagement.convert_filter_to_data(filter)
-        result = DatabaseManagement.match_filter_data(processedFilter, data)
+        processed_request = DatabaseManagement.convert_request_to_data(request_cpee)
+        result = DatabaseManagement.match_new_order(processed_request, data, item)
         if result:
             print("Result found in matching")
-            DatabaseManagement.delete_filter_by_callback_url(filter[5])
-            callback(data, filter[5])
-            print(processedFilter)
+            DatabaseManagement.dequeue_filter_by_callback_url(request_cpee[5])
+            callback(data, request_cpee[5])
+            print(processed_request)
             return True
     return False
 
-
+# Calls back the CPEE tool via the callback-url
 def callback(result, callbackURL):
     headers = {'Content-Type': 'application/json'}
     response = requests.put(callbackURL, json=result, headers=headers)
@@ -58,26 +51,26 @@ def expr_item():
     data = request.json
 
     if 'expr' in data and 'item' in data and 'userID' in data and 'timestamp' in data:
-        expr = data['expr']
+        expr = check_word_spelling(data['expr'])
 
+        # User has to add a ',' between each item ordered
+        # The items were already checked by the discord bot, therefore it should only be one of both cases
         if ',' not in data['item']:
             # If no comma is present, create a list with the item as the only element
-            items = [checkItemSpelling([data['item']])]
+            items = [check_word_spelling(data['item'])]
             data['item'] = items
-        else:
+        elif ',' in data['item']:
             # If a comma is present, split the item string into a list using ', ' as the delimiter
             items = data['item'].split(', ')
             corrected_items = []
             for item in items:
                 print(f"(wrong) item name {item}")
-                corrected_item = checkItemSpelling(item)
+                corrected_item = check_word_spelling(item)
                 print(f"(corrected item name {corrected_item}")
                 corrected_items.append(corrected_item)
             data['item'] = str(corrected_items)
-
-        # for i in range(len(items)):
-        #     items = checkItemSpelling(items)
-
+        else:
+            abort(500, "Wrong input error. It seems that there were no items ordered")
         userID = data['userID']
         timestamp = data['timestamp']
 
@@ -88,12 +81,9 @@ def expr_item():
 
         try:
             for item in items:
-                if not matching(data):
+                if not matching(data, item):
                     print("Added item to OrderQueue")
                     add_item(expr, item, userID, timestamp)
-        except NumberTooBigError as e:
-            print(e)
-            abort(500, "There was an internal error with the database. Please check console")
         except Exception as e:
             print(e)
             abort(500, "Unknown error. Check server console")
@@ -105,19 +95,18 @@ def expr_item():
         abort(422, "Wrong data (format)")
 
 
-def checkItemSpelling(provided_item):
-    # Tokenize the provided item
-    provided_tokens = nlp(str(provided_item))
-
+# Checks the input item if it has a typo be crosschecking the words given in the database
+# The wordsRepository comes from the incoming processing requests from CPEE (Assuming that the words from CPEE are correct)
+def check_word_spelling(provided_word):
     # Initialize variables to store the best match and its similarity score
     best_match = None
-    best_similarity = 0.0
+    best_similarity = 0
 
-    # Compare with each valid item
-    for valid_item in ItemRepository.get_all_valid_items():
-        valid_tokens = nlp(valid_item)
-        # Calculate similarity between tokens
-        similarity = provided_tokens.similarity(valid_tokens)
+    similarity_threshold = 70
+
+    # Compare with each valid item using fuzzy string matching
+    for valid_item in WordsRepository.get_all_valid_words():
+        similarity = fuzz.token_sort_ratio(provided_word.lower(), valid_item.lower())
 
         # Adjust the similarity threshold based on your needs
         if similarity > best_similarity:
@@ -126,11 +115,11 @@ def checkItemSpelling(provided_item):
             best_similarity = similarity
             print(f"best match {best_match} and best similarity {best_similarity}")
 
-    # Return the best match (or the original item if no match is found)
-    return best_match if best_similarity > 0.3 else provided_item
+    # Return the best match (or None if no match is found above the threshold)
+    return best_match if best_similarity > similarity_threshold else provided_word
 
 
 if __name__ == "__main__":
     # Local testing
     app.run(host='localhost', port=8080, debug=True)
-    #app.run(host="::", port=5321)
+    # app.run(host="::", port=5321)

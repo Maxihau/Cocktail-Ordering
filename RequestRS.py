@@ -1,6 +1,6 @@
 from ast import literal_eval
 from bottle import request, Bottle, HTTPResponse, abort
-from DatabaseManagement import DatabaseManagement, ItemRepository
+from DatabaseManagement import DatabaseManagement, WordsRepository
 
 app = Bottle()
 
@@ -28,8 +28,8 @@ def order():
     expr = pattern_array[0] if pattern_array else None
     items = pattern_array[1:] if len(pattern_array) > 1 else None
     for item in items:
-        ItemRepository.add_item_to_itemsDB(item)
-
+        WordsRepository.add_word_to_wordsDB(item)
+    WordsRepository.add_word_to_wordsDB(expr)
 
     # Optionally get 'from', 'to', and 'banned_users' fields
     form_from = request.forms.get('from', None)
@@ -48,7 +48,7 @@ def order():
 
     print(f"Banned users: {banned_users_array}")
 
-    filter = {
+    request_cpee = {
         'expr': expr,
         'item': items,
         'from': form_from,
@@ -56,17 +56,17 @@ def order():
         'banned_users': banned_users_array,
         'callbackURL': callback_url
     }
-    filter = {key: value if value != '' else None for key, value in filter.items()}
+    request_cpee = {key: value if value != '' else None for key, value in request_cpee.items()}
 
-    # Checks if anything in the order queue matches the new filter
-    result = DatabaseManagement.process_data(order_queue, filter)
+    # Checks if anything in the order queue matches the new request (from CPEE)
+    result = DatabaseManagement.match_new_request(order_queue, request_cpee)
     # If yes, then send it right back
     if result is not None:
-        DatabaseManagement.dequeue(order_queue, result["orderNb"])
+        DatabaseManagement.dequeue_order(order_queue, result["orderNb"])
         return result
 
     # If not, then add this filter into the request queue
-    DatabaseManagement.create_filter(filter, request_queue)
+    DatabaseManagement.enqueue_filter(request_cpee, request_queue)
     print("No result found. Send Callback")
 
     # Use callback function
@@ -74,6 +74,6 @@ def order():
 
 
 if __name__ == "__main__":
-    app.run(host="::", port=5123)
+    # app.run(host="::", port=5123)
     # Local testing
-    #app.run(host='localhost', port=8081, debug=True)
+    app.run(host='localhost', port=8081, debug=True)

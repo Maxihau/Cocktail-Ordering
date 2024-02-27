@@ -1,8 +1,6 @@
 import os
 import sqlite3
-import time as mytime
 from datetime import datetime
-
 
 
 class DatabaseManagement:
@@ -11,21 +9,21 @@ class DatabaseManagement:
     folder_path = 'database'
 
     # For debugging
-    def check_database(databaseName):
-        os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
-        db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
-        con = sqlite3.connect(db_path)
-        cur = con.cursor()
-        cur.execute(
-            '''CREATE TABLE IF NOT EXISTS items (orderNb INTEGER, expr TEXT, item TEXT, userID INTEGER, timestamp TEXT) ''')
-        member_data = cur.execute("SELECT * FROM items ORDER BY orderNb")
-        for row in member_data:
-            print(row)
-        cur.close()
-        con.close()
+    # def check_database(databaseName):
+    #     os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
+    #     db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
+    #     con = sqlite3.connect(db_path)
+    #     cur = con.cursor()
+    #     cur.execute(
+    #         '''CREATE TABLE IF NOT EXISTS items (orderNb INTEGER, expr TEXT, item TEXT, userID INTEGER, timestamp TEXT) ''')
+    #     member_data = cur.execute("SELECT * FROM items ORDER BY orderNb")
+    #     for row in member_data:
+    #         print(row)
+    #     cur.close()
+    #     con.close()
 
     @staticmethod
-    def create_filter(filterCriteria, databaseName):
+    def enqueue_filter(filterCriteria, databaseName):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
@@ -57,14 +55,14 @@ class DatabaseManagement:
         con.commit()
         con.close()
 
+    # Needed for the matching to match with the order request
     @staticmethod
-    def convert_filter_to_data(row):
+    def convert_request_to_data(row):
         banned_users_str = row[4]
         if banned_users_str is None:
             banned_users = None
         else:
             banned_users = [int(user_id) for user_id in banned_users_str.split(',') if user_id.strip()]
-
 
         data_object = {
             'expr': row[0],
@@ -78,7 +76,7 @@ class DatabaseManagement:
         return data_object
 
     @staticmethod
-    def get_all_filters():
+    def get_all_requests():
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, DatabaseManagement.request_queue)
         con = sqlite3.connect(db_path)
@@ -102,8 +100,9 @@ class DatabaseManagement:
 
         return results
 
+    # Processes the new filter/ service from the CPEE by checking if it matches the already existing orders in the queue
     @staticmethod
-    def process_data(databaseName, filterCriteria):
+    def match_new_request(databaseName, filterCriteria):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
@@ -131,8 +130,7 @@ class DatabaseManagement:
             query += ' AND timestamp <= ?'
 
         # Add conditions for 'banned_users' if it exists in the data
-        if 'banned_users' in filterCriteria and filterCriteria['banned_users'] is not None and filterCriteria[
-            'banned_users']:
+        if 'banned_users' in filterCriteria and filterCriteria['banned_users'] is not None and filterCriteria['banned_users']:
             query += ' AND userID NOT IN ({})'.format(', '.join(['?' for _ in filterCriteria['banned_users']]))
 
         query += 'ORDER BY orderNb ASC'
@@ -145,8 +143,7 @@ class DatabaseManagement:
             params.append(filterCriteria['from'])
         if 'to' in filterCriteria and filterCriteria['to'] is not None:
             params.append(filterCriteria['to'])
-        if 'banned_users' in filterCriteria and filterCriteria['banned_users'] is not None and filterCriteria[
-            'banned_users']:
+        if 'banned_users' in filterCriteria and filterCriteria['banned_users'] is not None and filterCriteria['banned_users']:
             params.extend(filterCriteria['banned_users'])
 
         cur.execute(query, params)
@@ -154,9 +151,6 @@ class DatabaseManagement:
         # Fetch the result
         result = cur.fetchone()
 
-        # all_results = cur.fetchall()
-        # print(all_results)
-        # print(result)
         # Check if a matching entry was found
         if result:
             print("Matching entry found.")
@@ -184,7 +178,7 @@ class DatabaseManagement:
         return data
 
     @staticmethod
-    def delete_filter_by_callback_url(callback_url):
+    def dequeue_filter_by_callback_url(callback_url):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, DatabaseManagement.request_queue)
         con = sqlite3.connect(db_path)
@@ -198,7 +192,7 @@ class DatabaseManagement:
         con.close()
 
     @staticmethod
-    def match_filter_data(filter_criteria, data):
+    def match_new_order(filter_criteria, data, item):
         # Handle None values for filter_criteria['from'] and filter_criteria['to']
         from_time_str = filter_criteria['from']
         to_time_str = filter_criteria['to']
@@ -222,9 +216,7 @@ class DatabaseManagement:
             data_time = None
 
         item_matches = (
-                filter_criteria['item'] is None or
-                (',' not in filter_criteria['item'] and data['item'] == filter_criteria['item']) or
-                any(item.strip() == data['item'] for item in filter_criteria['item'].split(','))
+                item in filter_criteria['item']
         )
 
         # Check if the filter criteria is true or false
@@ -251,31 +243,11 @@ class DatabaseManagement:
         return max_order_number if max_order_number is not None else 0  # Return 0 if no entries are present
 
     @staticmethod
-    def check_num_queue(databaseName):
-        os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
-        db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
-        con = sqlite3.connect(db_path)
-        cur = con.cursor()
-        cur.execute(
-            '''CREATE TABLE IF NOT EXISTS items (orderNb INTEGER, expr TEXT, item TEXT, userID INTEGER, timestamp TEXT) ''')
-        cur.execute('''SELECT COUNT(*) AS entry_count FROM items''')
-        result = cur.fetchone()
-        if result[0] > 0:
-            # print(result[0])
-            cur.close()
-            con.close()
-            return result[0]
-        else:
-            cur.close()
-            con.close()
-            return 0
-
-    # orderNb: -1 if it is a new order which needs a new number else its the old order number
-    @staticmethod
-    def enqueue(databaseName, orderNb, expr, item, userID, timestamp):
+    def enqueue_order(databaseName, orderNb, expr, item, userID, timestamp):
 
         # Important because the order of the ordered cocktails is needed (FIFO)
         # The order number is only important in relation to each-other in the order queue
+        # orderNb: -1 if it is a new order which needs a new number else its the old order number
         if orderNb == -1:
             orderNb = DatabaseManagement.get_max_order_number(databaseName) + 1
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
@@ -294,7 +266,7 @@ class DatabaseManagement:
         con.close()
 
     @staticmethod
-    def dequeue(databaseName, orderNb):
+    def dequeue_order(databaseName, orderNb):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
         db_path = os.path.join(DatabaseManagement.folder_path, databaseName)
         con = sqlite3.connect(db_path)
@@ -315,41 +287,42 @@ class DatabaseManagement:
             return None, None, None, None, None
 
 
-class ItemRepository:
+class WordsRepository:
 
     @staticmethod
-    def add_item_to_itemsDB(item):
+    def add_word_to_wordsDB(word):
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
-        db_path = os.path.join(DatabaseManagement.folder_path, "items.db")
+        db_path = os.path.join(DatabaseManagement.folder_path, "words.db")
         con = sqlite3.connect(db_path)
         cur = con.cursor()
         try:
             # Check if the item already exists in the database
-            if item not in ItemRepository.get_all_valid_items():
+            if word not in WordsRepository.get_all_valid_words():
                 # Execute a query to insert the item into the database
                 cur.execute(
-                    '''CREATE TABLE IF NOT EXISTS items (name TEXT) ''')
-                cur.execute("INSERT INTO items (name) VALUES (?)", (item,))
+                    '''CREATE TABLE IF NOT EXISTS words (name TEXT) ''')
+                cur.execute("INSERT INTO words (name) VALUES (?)", (word,))
 
                 # Commit the changes to the database
                 con.commit()
-                print(f"Item '{item}' added to the database.")
+                print(f"Item '{word}' added to the database.")
             else:
-                print(f"Item '{item}' already exists in the database and will not be added.")
+                print(f"Item '{word}' already exists in the database and will not be added.")
         finally:
             # Close the database connection
             con.close()
 
+    # Extracts all words from the database to be checked if the target word contains a type
     @staticmethod
-    def get_all_valid_items():
+    def get_all_valid_words():
         os.makedirs(DatabaseManagement.folder_path, exist_ok=True)
-        db_path = os.path.join(DatabaseManagement.folder_path, "items.db")
+        db_path = os.path.join(DatabaseManagement.folder_path, "words.db")
         con = sqlite3.connect(db_path)
         cur = con.cursor()
 
         try:
             cur.execute(
-                '''CREATE TABLE IF NOT EXISTS items (name TEXT) ''')
+                '''CREATE TABLE IF NOT EXISTS words (name TEXT) ''')
             # Execute a query to fetch all valid items
             cur.execute("SELECT name FROM items")
 
@@ -357,15 +330,15 @@ class ItemRepository:
             rows = cur.fetchall()
 
             # Extract the item names from the tuples
-            valid_items = [row[0] for row in rows]
+            valid_words = [row[0] for row in rows]
 
-            return valid_items
+            return valid_words
 
         finally:
             # Close the database connection
             con.close()
 
-
+#For test purposes
 if __name__ == "__main__":
     # DatabaseManagement.enqueue("orderQueue", 1,"order", "Negroni", 212,"12:30:12")
     # DatabaseManagement.enqueue("orderQueue", 2,"order", "Margerita", 123,"15:30:12")
@@ -377,4 +350,4 @@ if __name__ == "__main__":
         'to': None,
         'banned_users': [212]
     }
-    DatabaseManagement.process_data("orderQueue", data)
+    DatabaseManagement.match_new_request("orderQueue", data)

@@ -1,7 +1,5 @@
 import requests
-
 from bottle import Bottle, request
-
 app = Bottle()
 
 DISCORD_BOT_TOKEN = 'MTE4NDQzMzI3NzUzNzM2NjAzNg.Gf_dwn.RVRN64S767PjzcdnkWjLRSsHHqGfS8MxJ2u7U8'
@@ -24,13 +22,13 @@ def send_discord_message():
 
         message = f"Your item {item} is now ready to be picked up!"
 
-        channel_id = createDmChannel(DISCORD_BOT_TOKEN, user_id)
-        sendMessage(DISCORD_BOT_TOKEN, channel_id, message)
+        channel_id = create_dm_channel(DISCORD_BOT_TOKEN, user_id)
+        send_message(DISCORD_BOT_TOKEN, channel_id, message)
     except Exception as e:
         return {'success': False, 'message': f"An error occurred: {e}"}
 
 
-def createDmChannel(token, user_id):
+def create_dm_channel(token, user_id):
     data = {"recipient_id": user_id}
     headers = {"authorization": f'Bot {token}'}
     r = requests.post(f'https://discord.com/api/v9/users/@me/channels', json=data, headers=headers)
@@ -39,7 +37,7 @@ def createDmChannel(token, user_id):
     return channel_id
 
 
-def sendMessage(token, channel_id, message):
+def send_message(token, channel_id, message):
     url = 'https://discord.com/api/v8/channels/{}/messages'.format(channel_id)
     data = {"content": message}
     header = {"authorization": f'Bot {token}'}
@@ -49,6 +47,6 @@ def sendMessage(token, channel_id, message):
 
 if __name__ == '__main__':
     # Local test
-    #app.run(host='localhost', port=8081, debug=True)
+    # app.run(host='localhost', port=8081, debug=True)
 
     app.run(host="::", port=5001)

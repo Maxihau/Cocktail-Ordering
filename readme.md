@@ -40,6 +40,8 @@ The following packages are needed:
 
 ### Execution
 
+Before executing, please add your Discord token into the "Discord_Token.txt" file in the repository in order to work. (To create a Discord Token, see this [instruction](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token))
+
 Execute the following classes in any order:
 * Discord_BOT.py
 * ItemReadyMessage.py

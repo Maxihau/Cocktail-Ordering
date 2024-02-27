@@ -2,16 +2,23 @@
 The Cocktail Ordering system simplifies order processing through Discord, directing requests to the CPEE tool for order fulfillment. In instances where CPEE services are unavailable, the system intelligently queues orders. On the service end, the CPEE tool processes orders meeting specific criteria, with unmatched requests similarly queued until the next order.
 
 # Table of Contents
+
+
 1. [Usage](#usage)
    - [Package Dependencies](#package-dependencies)
    - [Execution](#execution)
-   - [CPEE Tool](#cpee-tool)
-      - [Instructions](#instructions)
 2. [Features](#features)
-3. [Technical Background](#technical-background)
-   - [Database Management.py](#databasemanagementpy)
-      - [DatabaseManagement](#database-management)
-      - [WordsRepository](#words-repository)
+3. [CPEE Tool](#cpee-tool)
+   - [Instructions](#instructions)
+4. [Example Procedure](#example-procedure)
+   - [Overview](#overview)
+   - [Data Elements](#data-elements)
+   - [Endpoints](#endpoints)
+   - [Process Model](#process-model)
+5. [Technical Background](#technical-background)
+   - [DatabaseManagement.py](#databasemanagementpy)
+      - [Database Management](#database-management)
+      - [Words Repository](#words-repository)
    - [Discord_BOT.py](#discordbotpy)
    - [OrderingRS.py](#orderingrspy)
    - [RequestRS.py](#requestrspy)
@@ -58,12 +65,32 @@ Example with **typos**:
 
 ![Screenshot Example.png](Screenshots%2FScreenshot%20Example.png)
 
-### CPEE Tool
+## Features
+
+There are some features that streamline the whole ordering process:
+
+* Users can order multiple cocktails, and each is treated as an individual order.
+* The system checks for typos in user orders and corrects them based on its database, derived from service calls by the CPEE tool.
+* (A)synchronous ordering:
+  * Orders are processed immediately if an instance is ready, matching criteria without queuing.
+  * Orders are queued if an instance is busy, and processed when ready, eliminating the need for users to reorder.
+* (A)synchronous service:
+  * When an instance is ready, it processes queued orders matching criteria immediately.
+  * If an instance is ready but no orders are available, it sends a callback URL for upcoming orders matching criteria.
+* Criteria filtering:
+  
+  The instance has filtering criteria to process specific orders. These criteria can be set up in the Properties/ Arguments in the service call (See template).
+  * Expression: The order expression must match the CPEE instance expression.
+  * Item: Each ordered item must match the supported items of the CPEE instance.
+  * From: Limits the time for processing orders.
+  * Banned users: Ignores orders from blacklisted users.
+
+## CPEE Tool
 
 
 The CPEE tool is a modular, service-oriented workflow execution engine (More information: <a href="https://cpee.org/" target="_blank">CPEE</a>). It handles cocktail processing by indicating its readiness to process new orders. The tool can set up criteria that must be met before processing orders (Refer to Features/ Criteria filtering).
 
-#### Instructions
+### Instructions
 
 * Open https://cpee.org/ and start a "Demo" on the left navigation bar.
 * Create a new instance on the right side and monitor the instance.
@@ -91,28 +118,62 @@ The CPEE tool is a modular, service-oriented workflow execution engine (More inf
       * Not Empty: ```[123434412, 231231241]```
 
 ![Screenshot Criteria.png](Screenshots%2FScreenshot%20Criteria.png)
-* Proceed to the Execution tab to process orders.
+
+Proceed to the Execution tab to process orders.
+
 ![Screenshot Execution.png](Screenshots%2FScreenshot%20Execution.png)
 
-## Features
 
-There are some features that streamline the whole ordering process:
+## Example procedure
+This chapter shows a detailed example of the process model in CPEE. This should be a guideline for a better understanding of processing and handling the data.
 
-* Users can order multiple cocktails, and each is treated as an individual order.
-* The system checks for typos in user orders and corrects them based on its database, derived from service calls by the CPEE tool.
-* (A)synchronous ordering:
-  * Orders are processed immediately if an instance is ready, matching criteria without queuing.
-  * Orders are queued if an instance is busy, and processed when ready, eliminating the need for users to reorder.
-* (A)synchronous service:
-  * When an instance is ready, it processes queued orders matching criteria immediately.
-  * If an instance is ready but no orders are available, it sends a callback URL for upcoming orders matching criteria.
-* Criteria filtering:
-  
-  The instance has filtering criteria to process specific orders. These criteria can be set up in the Properties/ Arguments in the service call (See template).
-  * Expression: The order expression must match the CPEE instance expression.
-  * Item: Each ordered item must match the supported items of the CPEE instance.
-  * From: Limits the time for processing orders.
-  * Banned users: Ignores orders from blacklisted users.
+### Overview
+
+![Screenshot CPEE overview.png](Screenshots%2FScreenshot%20CPEE%20overview.png)
+
+Looking at the template the process shows the making of two cocktails. The first two column represents one cocktail (Negroni & Daiquiri) and the third one is the default one.
+
+When using the CPEE tool, there are two important tabs that needed to be viewed before.
+
+### Data Elements
+
+![Screenshot Data Elements.png](Screenshots%2FScreenshot%20Data%20Elements.png)
+
+Data Elements are the variables that save the data from service calls with scripts. Here, the item is a Daiquiri and the user_id is 12342314331431 (For storing the data, see [Process Model](#process-model))
+
+### Endpoints
+
+![Screenshot Endpoints.png](Screenshots%2FScreenshot%20Endpoints.png)
+
+This tab is important for the communication via REST services. The links are saved in this tab and labeled. Here is an example for the variables "getOrder" and "sendMsg". In this case, the ports are active from the python classes and are waiting for a request.
+
+### Process Model
+
+This chapter explains the whole process model of the "Cocktail_template.xml"
+
+![Screenshot Service Call Start.png](Screenshots%2FScreenshot%20Service%20Call%20Start.png)
+
+This service call with scripts is the main part of this process model. It is important to set the endpoint to "getOrder" as we need the link to use the POST method with the arguments shown in the figure. The arguments set up the criteria which need to be met to accept this order (See figure, Properties/ Arguments) and receives the ordered item and the user (See figure, Output Handling/ Finalize). It is important to note that a callback url is also sent to the endpoint. This callback url can be used to wait for a asynchronous messages.
+Either the process model receives a synchronous message with the needed data or a response with the header "CPEE-callback" needs to be true (For code, see "RequestRS.py", line 74) which results into waiting for a post request via the callback url.
+
+![Screenshot Service call: Output Handling.png](Screenshots%2FScreenshot%20Service%20call%3A%20Output%20Handling.png)
+
+The data is then saved in the "Data Elements" tab (See [Data Elements](#data-elements)) for later sending messages to the user.
+
+![Screenshot if-statement.png](Screenshots%2FScreenshot%20if-statement.png)
+
+In order to make the cocktail, if statements are needed to create procedures as each cocktail needs different ingredients.
+In this case, there are two columns with if conditions and a default column for everything else. The first column contains a if statement for the cocktail "Negroni".
+
+![Screenshot Service Call Send Message.png](Screenshots%2FScreenshot%20Service%20Call%20Send%20Message.png)
+
+Once a negroni is ordered, the condition gets true and starts making the cocktail. For each process, there will be a service call with a script. This script sends updates to the user. The example in the figure above shows a service call with script which adds gin into the glass and sends the message "Adding Gin" to the user. It is important to note that the Endpoint "sendMsg" is sent, the Method is a "post" request and the right arguments are set.
+
+![Screenshot Service call ending.png](Screenshots%2FScreenshot%20Service%20call%20ending.png)
+
+Once the whole cocktail making process is done, there will be one final service call which notifies the user that the cocktail is ready to be picked up. Example: Sends the user the message "Negroni is ready!".
+
+After this service, the loop starts again at the first service call and posts a request for the next order until the execution is stopped and/ or terminated.
 
 ## Technical Background
 In the following, each class will be described and explained clearly. The ordering system consist of the following components (RequestRS.py, OrderingRS.py & DatabaseManagement.py), Discord system (Discord_BOT.py & ItemReadyMessage.py) and CPEE (Processing the order).

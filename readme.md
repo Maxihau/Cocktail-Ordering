@@ -39,7 +39,7 @@ Execute the following classes in any order:
 * OrderingRS.py
 * RequestRS.py
 
-Once all instances are running, create and execute a CPEE instance using the "Cocktail_template.xml" file in this repository (For detailed instructions, refer to CPEE Tool/ Instructions).
+Once all instances are running, create and execute a CPEE instance using the "Cocktail_template.xml" file in this repository (For detailed instructions, refer to [Instructions](#instructions)).
 
 The system is now ready for use!
 
@@ -176,7 +176,7 @@ Used libraries, frameworks: "bottle", "ast" ("literal_eval" to check if the inpu
 
 ##### Methods
 
-* **order**: The main function checks the data for syntax correctness, adds words to the database for spelling checks (See OrderingRS.py/ check_word_spelling), and processes requests by either sending back an order or confirming the callback URL and enqueuing the request.
+* **order**: The main function checks the data for syntax correctness, adds words to the database for spelling checks (See [OrderingRS](#orderingrspy)/ check_word_spelling), and processes requests by either sending back an order or confirming the callback URL and enqueuing the request.
 
 ### ItemReadyMessage.py
 

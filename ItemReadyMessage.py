@@ -2,7 +2,8 @@ import requests
 from bottle import Bottle, request
 app = Bottle()
 
-DISCORD_BOT_TOKEN = 'MTE4NDQzMzI3NzUzNzM2NjAzNg.Gf_dwn.RVRN64S767PjzcdnkWjLRSsHHqGfS8MxJ2u7U8'
+
+
 
 
 @app.post('/')
@@ -19,6 +20,10 @@ def send_discord_message():
         user_id = int(form_data_dict['user_id'])
         message = form_data_dict['message']
         print(f"UserID: {user_id}, message: {message}")
+
+        with open("Discord_Token.txt.txt") as f:
+            data = f.read()
+        DISCORD_BOT_TOKEN = data
 
         # Create dm channel
         channel_id = create_dm_channel(DISCORD_BOT_TOKEN, user_id)

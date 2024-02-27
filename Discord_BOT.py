@@ -4,7 +4,7 @@ import requests
 
 intents = discord.Intents.all()
 client = discord.Client(intents=intents)
-DISCORD_BOT_TOKEN = 'MTE4NDQzMzI3NzUzNzM2NjAzNg.Gf_dwn.RVRN64S767PjzcdnkWjLRSsHHqGfS8MxJ2u7U8'
+DISCORD_BOT_TOKEN = ''
 
 # # For testing locally
 REST_SERVICE_URL = 'http://localhost:8080/'
@@ -63,4 +63,7 @@ async def on_message(message):
 
 
 if __name__ == "__main__":
+    with open("Discord_Token.txt.txt") as f:
+        data = f.read()
+    DISCORD_BOT_TOKEN = data
     client.run(DISCORD_BOT_TOKEN)

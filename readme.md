@@ -176,7 +176,7 @@ Used libraries, frameworks: "requests", "bottle", "fuzzywuzzy" (String matching)
 
 This class receives incoming service requests from CPEE and processes them. It handles cases where there is a matching order for synchronous processing or enqueues requests with callback URLs for later processing.
 
-Used libraries, frameworks: "bottle", "ast" ("literal_eval" to check if the input is right)
+Used libraries, frameworks: "bottle", "ast" ("literal_eval" to check if the input is right).
 
 ##### Methods
 

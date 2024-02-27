@@ -9,10 +9,10 @@ The Cocktail Ordering system simplifies order processing through Discord, direct
       - [Instructions](#instructions)
 2. [Features](#features)
 3. [Technical Background](#technical-background)
-   - [Database Management](#database-management)
-      - [DatabaseManagement](#databasemanagement-class)
-      - [WordsRepository](#wordsrepository-class)
-   - [Discord_BOT.py](#discord_botpy)
+   - [Database Management.py](#databasemanagementpy)
+      - [DatabaseManagement](#database-management)
+      - [WordsRepository](#words-repository)
+   - [Discord_BOT.py](#discordbotpy)
    - [OrderingRS.py](#orderingrspy)
    - [RequestRS.py](#requestrspy)
    - [ItemReadyMessage.py](#itemreadymessagepy)
@@ -114,14 +114,14 @@ There are some features that streamline the whole ordering process:
   * From: Limits the time for processing orders.
   * Banned users: Ignores orders from blacklisted users.
 
-## Technical Background  
+## Technical Background
 In the following, each class will be described and explained clearly. The ordering system consist of the following components (RequestRS.py, OrderingRS.py & DatabaseManagement.py), Discord system (Discord_BOT.py & ItemReadyMessage.py) and CPEE (Processing the order).
 
 ### DatabaseManagement.py
 
 This python file contains all the needed functions that are related to the database handling by using the SQlite3 Library. Two different classes handle the database:
 
-#### DatabaseManagement
+#### Database Management
 
 This is the main class that handles all the database related tasks. It saves, fetches, deletes data from the databases.
 
@@ -140,7 +140,7 @@ All functions are static methods which then are called by the other classes when
 * **enqueue_order**: Saves an order in the database queue when no service request is available.
 * **dequeue_order**: Retrieves and dequeues an order by order number.
 
-#### WordsRepository
+#### Words Repository
 
 This class checks the spelling of words in user orders against known words from service requests, assuming they are correct.
 

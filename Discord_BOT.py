@@ -65,6 +65,7 @@ async def on_message(message):
 if __name__ == "__main__":
     with open("Discord_Token.txt") as f:
         data = f.read()
+        DISCORD_BOT_TOKEN = data.strip()
     if len(DISCORD_BOT_TOKEN) == 0:
         print("The Discord_Token.txt is empty. Please add the token")
     else:

@@ -21,6 +21,7 @@ def send_discord_message():
         # Create dm channel
         channel_id = create_dm_channel(DISCORD_BOT_TOKEN, user_id)
         # Send message
+        print("send message")
         send_message(DISCORD_BOT_TOKEN, channel_id, message)
     except Exception as e:
         return {'success': False, 'message': f"An error occurred: {e}"}
@@ -29,6 +30,8 @@ def send_discord_message():
 def create_dm_channel(token, user_id):
     data = {"recipient_id": user_id}
     headers = {"authorization": f'Bot {token}'}
+    print(data)
+    print(token)
     r = requests.post(f'https://discord.com/api/v9/users/@me/channels', json=data, headers=headers)
     print(f"Create DM channel status: {r.status_code}")
     channel_id = r.json()['id']
@@ -45,11 +48,11 @@ def send_message(token, channel_id, message):
 
 if __name__ == '__main__':
     with open("Discord_Token.txt") as f:
-        data = f.read()
-        DISCORD_BOT_TOKEN = data
+        input_data = f.read()
+        DISCORD_BOT_TOKEN = input_data.strip()
     if len(DISCORD_BOT_TOKEN) == 0:
         print("The Discord_Token.txt is empty. Please add the token")
     else:
         # Local test
-        app.run(host='localhost', port=8081, debug=True)
-        # app.run(host="::", port=5001)
+        # app.run(host='localhost', port=8081, debug=True)
+        app.run(host="::", port=5001)

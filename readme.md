@@ -87,7 +87,7 @@ The CPEE tool is a modular, service-oriented workflow execution engine (More inf
   * banned users:
     * It is an array of numbers (Discord IDs only contain numbers)
     * Format:
-      * Empty: ```[]``
+      * Empty: ```[]```
       * Not Empty: ```[123434412, 231231241]```
 
 ![Screenshot Criteria.png](Screenshots%2FScreenshot%20Criteria.png)

@@ -35,7 +35,7 @@
             <arguments>
               <pattern>["order", "Negroni", "Daiquiri"]</pattern>
               <from>06:00</from>
-              <to>20:00</to>
+              <to>23:00</to>
               <banned_users>[123422324, 3421524521]</banned_users>
             </arguments>
           </parameters>
@@ -79,7 +79,7 @@ data.user_id = result['userID']</finalize>
           </documentation>
         </call>
         <choose mode="exclusive">
-          <alternative condition="data.item = 'Negroni'">
+          <alternative condition="data.item == 'Negroni'">
             <_probability>
               <_probability_min/>
               <_probability_max/>

@@ -40,7 +40,7 @@ The following packages are needed:
 
 ### Execution
 
-Before executing, please add your Discord token into the "Discord_Token.txt" file in the repository in order to work. (To create a Discord Token, see this [instruction](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)).
+Before executing, paste your Discord token into the "Discord_Token.txt" file in the repository (To create a Discord Token, see this [instruction](https://github.com/reactiflux/discord-irc/wiki/Creating-a-discord-bot-&-getting-a-token)).
 
 Execute the following classes in any order:
 * Discord_BOT.py
@@ -72,7 +72,7 @@ Example with **typos**:
 There are some features that streamline the whole ordering process:
 
 * Users can order multiple cocktails, and each is treated as an individual order.
-* The system checks for typos in user orders and corrects them based on its database, derived from service calls by the CPEE tool.
+* The system checks for typos in user orders and corrects them based on its database, which is derived from service calls by the CPEE tool.
 * (A)synchronous ordering:
   * Orders are processed immediately if an instance is ready, matching criteria without queuing.
   * Orders are queued if an instance is busy, and processed when ready, eliminating the need for users to reorder.
@@ -90,7 +90,7 @@ There are some features that streamline the whole ordering process:
 ## CPEE Tool
 
 
-The CPEE tool is a modular, service-oriented workflow execution engine (More information: <a href="https://cpee.org/" target="_blank">CPEE</a>). It handles cocktail processing by indicating its readiness to process new orders. The tool can set up criteria that must be met before processing orders (Refer to Features/ Criteria filtering).
+The CPEE tool is a modular, service-oriented workflow execution engine (More information: [CPEE](https://cpee.org/)). It handles cocktail processing by indicating its readiness to process new orders. The tool can set up criteria that must be met before processing orders (Refer to Features/ Criteria filtering).
 
 ### Instructions
 

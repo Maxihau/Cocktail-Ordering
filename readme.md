@@ -127,13 +127,12 @@ Proceed to the Execution tab to process orders.
 
 
 ## Example procedure
-This chapter shows a detailed example of the process model in CPEE. This should be a guideline for a better understanding of processing and handling the data.
-
+This section provides a detailed walkthrough of the CPEE process model, offering insights into the creation of cocktails. It serves as a comprehensive guide for understanding of process models within the CPEE system.
 ### Overview
 
 ![Screenshot CPEE overview.png](Screenshots%2FScreenshot%20CPEE%20overview.png)
 
-Looking at the template the process shows the making of two cocktails. The first two column represents one cocktail (Negroni & Daiquiri) and the third one is the default one.
+The process depicted in the template involves the creation of two cocktails. The first two columns represent individual cocktails (Negroni & Daiquiri), while the third column serves as the default option.
 
 When using the CPEE tool, there are two important tabs that needed to be viewed before.
 
@@ -141,13 +140,13 @@ When using the CPEE tool, there are two important tabs that needed to be viewed 
 
 ![Screenshot Data Elements.png](Screenshots%2FScreenshot%20Data%20Elements.png)
 
-Data Elements are the variables that save the data from service calls with scripts. Here, the item is a Daiquiri and the user_id is 12342314331431 (For storing the data, see [Process Model](#process-model))
+Data Elements are variables that store information from service calls with scripts. For example, the item variable could store "Daiquiri," and the user_id might be "12342314331431" (refer to [Process Model](#process-model) for data storage details).
 
 ### Endpoints
 
 ![Screenshot Endpoints.png](Screenshots%2FScreenshot%20Endpoints.png)
 
-This tab is important for the communication via REST services. The links are saved in this tab and labeled. Here is an example for the variables "getOrder" and "sendMsg". In this case, the ports are active from the python classes and are waiting for a request.
+The Endpoints tab is important for communication via REST services. Here, links are saved and labeled. An example includes variables like "getOrder" and "sendMsg," with active ports from Python classes awaiting requests.
 
 ### Process Model
 
@@ -155,25 +154,23 @@ This chapter explains the whole process model of the "Cocktail_template.xml"
 
 ![Screenshot Service Call Start.png](Screenshots%2FScreenshot%20Service%20Call%20Start.png)
 
-This service call with scripts is the main part of this process model. It is important to set the endpoint to "getOrder" as we need the link to use the POST method with the arguments shown in the figure. The arguments set up the criteria which need to be met to accept this order (See figure, Properties/ Arguments) and receives the ordered item and the user (See figure, Output Handling/ Finalize). It is important to note that a callback url is also sent to the endpoint. This callback url can be used to wait for a asynchronous messages.
-Either the process model receives a synchronous message with the needed data or a response with the header "CPEE-callback" needs to be true (For code, see "RequestRS.py", line 74) which results into waiting for a post request via the callback url.
+The service call with scripts plays a crucial role in the process model. Setting the endpoint to "getOrder" is important for obtaining the link necessary for using the POST method. Arguments are configured to establish criteria for order acceptance (refer to Properties/ Arguments), and the ordered item and user details are received in the Output Handling/Finalize section. A callback URL is also sent to the endpoint, allowing the process model to wait for asynchronous messages. Depending on the response, the model handles either a synchronous message with necessary data or waits for a POST request via the callback URL, triggered by a response with the header "CPEE-callback" as "true" (refer to "RequestRS.py," line 74).
 
 ![Screenshot Service call: Output Handling.png](Screenshots%2FScreenshot%20Service%20call%3A%20Output%20Handling.png)
 
-The data is then saved in the "Data Elements" tab (See [Data Elements](#data-elements)) for later sending messages to the user.
+Data from the service call is saved in the "Data Elements" tab (see [Data Elements](#data-elements)), preparing for subsequent message dispatch to the user.
 
-![Screenshot if-statement.png](Screenshots%2FScreenshot%20if-statement.png)
+![Screenshot Condition statement.png](Screenshots%2FScreenshot%20Condition%20statement.png)
 
-In order to make the cocktail, if statements are needed to create procedures as each cocktail needs different ingredients.
-In this case, there are two columns with if conditions and a default column for everything else. The first column contains a if statement for the cocktail "Negroni".
+To create the cocktail, if statements are needed to establish procedures, as each cocktail requires different ingredients. In this instance, two columns with if conditions and a default column handle different scenarios. The first column contains an if statement for the cocktail "Negroni" (See figure above).
 
 ![Screenshot Service Call Send Message.png](Screenshots%2FScreenshot%20Service%20Call%20Send%20Message.png)
 
-Once a negroni is ordered, the condition gets true and starts making the cocktail. For each process, there will be a service call with a script. This script sends updates to the user. The example in the figure above shows a service call with script which adds gin into the glass and sends the message "Adding Gin" to the user. It is important to note that the Endpoint "sendMsg" is sent, the Method is a "post" request and the right arguments are set.
+Upon ordering a Negroni, the condition evaluates to true, initiating the cocktail-making process. Each step in the process involves a service call with a script that sends updates to the user. The example depicts a service call adding gin to the glass and notifying the user with the message "Adding Gin." Notably, the Endpoint "sendMsg" is utilized, employing a "post" request with appropriately set arguments.
 
 ![Screenshot Service call ending.png](Screenshots%2FScreenshot%20Service%20call%20ending.png)
 
-Once the whole cocktail making process is done, there will be one final service call which notifies the user that the cocktail is ready to be picked up. Example: Sends the user the message "Negroni is ready!".
+When the entire cocktail-making process is completed, a final service call notifies the user that the Negroni is ready to be picked up. For instance, the user receives the message "Negroni is ready!"
 
 After this service, the loop starts again at the first service call and posts a request for the next order until the execution is stopped and/ or terminated.
 

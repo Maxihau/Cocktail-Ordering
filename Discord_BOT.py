@@ -7,9 +7,9 @@ client = discord.Client(intents=intents)
 DISCORD_BOT_TOKEN = ''
 
 # # For testing locally
-REST_SERVICE_URL = 'http://localhost:8080/'
+# REST_SERVICE_URL = 'http://localhost:8080/'
 
-# REST_SERVICE_URL = 'https://lehre.bpm.in.tum.de/ports/5321/'
+REST_SERVICE_URL = 'https://lehre.bpm.in.tum.de/ports/5321/'
 
 
 @client.event
